@@ -1,0 +1,1156 @@
+<!doctype html>
+<html lang="zh-CN">
+ <head> 
+  <meta charset="utf-8"> 
+  <link rel="canonical" href="https://blog.csdn.net/BBeymax/article/details/138525712"> 
+  <meta http-equiv="content-type" content="text/html; charset=utf-8"> 
+  <meta name="renderer" content="webkit"> 
+  <meta name="force-rendering" content="webkit"> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
+  <meta name="report" content="{&quot;pid&quot;: &quot;blog&quot;, &quot;spm&quot;:&quot;1001.2101&quot;}"> 
+  <meta name="referrer" content="always"> 
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <link rel="alternate" media="handheld" href="#"> 
+  <meta name="shenma-site-verification" content="5a59773ab8077d4a62bf469ab966a63b_1497598848"> 
+  <meta name="applicable-device" content="pc"> 
+  <link href="https://g.csdnimg.cn/static/logo/favicon32.ico" rel="shortcut icon" type="image/x-icon"> 
+  <title>三维路径规划之DWA动态避障（matlab代码实现）_matlab实现动态障碍物-CSDN博客</title>  
+  <meta name="keywords" content="matlab实现动态障碍物"> 
+  <meta name="csdn-baidu-search" content="{&quot;autorun&quot;:true,&quot;install&quot;:true,&quot;keyword&quot;:&quot;matlab实现动态障碍物&quot;}"> 
+  <meta name="description" content="文章浏览阅读1.3k次，点赞13次，收藏19次。creatSphereObjectDynamic.m(创建动态障碍物，静态障碍物设置为速度为0的动态障碍物)dynamicWindowApproach.m（动态窗口的计算发生的变化，因为需要更新动态障障碍物的位置）代码地址：https://blog.csdn.net/BBeymax?中，障碍物都是静态障碍物，DWA算法实际上是可以实现动态避障的，这里我们补充其动态避障代码。drawSphereObject.m（画障碍物）代码的关键主要是动态障碍物的定义。_matlab实现动态障碍物"> 
+  <link rel="stylesheet" type="text/css" href="https://csdnimg.cn/release/blogv2/dist/pc/css/detail_enter-a805dca594.min.css">  
+  <link rel="stylesheet" type="text/css" href="https://csdnimg.cn/release/blogv2/dist/pc/themesSkin/skin-1024/skin-1024-ecd36efea2.min.css">    
+  <meta name="toolbar" content="{&quot;type&quot;:&quot;0&quot;,&quot;fixModel&quot;:&quot;1&quot;}">    
+  <link rel="stylesheet" type="text/css" href="https://csdnimg.cn/public/sandalstrap/1.4/css/sandalstrap.min.css"> 
+  <style>
+        .MathJax, .MathJax_Message, .MathJax_Preview{
+            display: none
+        }
+    </style>      
+ 	<style>
+	main div.blog-content-box pre {
+		max-height: 100%;
+		overflow-y: hidden;
+	}
+	</style>
+ </head>  
+ <body class="nodata  " style=""> 
+  <div id="toolbarBox" style="min-height: 48px;"></div>    
+  <link rel="stylesheet" href="https://csdnimg.cn/release/blogv2/dist/pc/css/blog_code-01256533b5.min.css"> 
+  <link rel="stylesheet" href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/editerView/chart-3456820cac.css"> 
+  <link rel="stylesheet" href="https://g.csdnimg.cn/lib/swiper/6.0.4/css/swiper.css">   
+  <div class="main_father clearfix d-flex justify-content-center mainfather-concision" style="height:100%;"> 
+   <div class="container clearfix container-concision" id="mainBox">  
+    <main>  
+     <div class="blog-content-box"> 
+      <div class="article-header-box"> 
+       <div class="article-header"> 
+        <div class="article-title-box"> 
+         <h1 class="title-article" id="articleContentId">三维路径规划之DWA动态避障（matlab代码实现）</h1> 
+        </div> 
+        <div class="article-info-box"> 
+         <div class="article-bar-top"> 
+          <img class="article-type-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/original.png" alt=""> 
+          <div class="bar-content"> 
+           <a href="https://mall.csdn.net/vip" data-report-query="spm=3001.10404" data-report-click="{&quot;spm&quot;:&quot;3001.10404&quot;}" data-report-view="{&quot;spm&quot;:&quot;3001.10404&quot;}" class="article-vip-box" target="_blank"><img class="article-vip-img-new" src="https://csdnimg.cn/release/blogv2/dist/pc/img/identityVipNew.png" alt=""></a> 
+           <a class="follow-nickName " href="https://blog.csdn.net/BBeymax" target="_blank" rel="noopener" title="YBayMax">YBayMax</a> 
+           <img class="article-time-img article-heard-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/newCurrentTime2.png" alt=""> 
+           <span class="time">于&nbsp;2024-05-07 11:45:29&nbsp;发布</span> 
+           <div class="read-count-box"> 
+            <img class="article-read-img article-heard-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/articleReadEyes2.png" alt=""> 
+            <span class="read-count">阅读量1.3k</span> 
+            <a id="blog_detail_zk_collection" class="un-collection" data-report-click="{&quot;mod&quot;:&quot;popu_823&quot;,&quot;spm&quot;:&quot;1001.2101.3001.4232&quot;,&quot;ab&quot;:&quot;new&quot;}"> <img class="article-collect-img article-heard-img un-collect-status isdefault" style="display:inline-block" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollect2.png" alt=""> <img class="article-collect-img article-heard-img collect-status isactive" style="display:none" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollectionActive2.png" alt=""> <span class="name">收藏</span> <span class="get-collection"> 19 </span> </a> 
+            <div class="read-count-box is-like" data-type="top"> 
+             <img class="article-read-img article-heard-img" style="display:none" id="is-like-imgactive-new" src="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Active.png" alt=""> 
+             <img class="article-read-img article-heard-img" style="display:block" id="is-like-img-new" src="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Black.png" alt=""> 
+             <span class="read-count" id="blog-digg-num">点赞数 13 </span> 
+            </div> 
+           </div> 
+          </div> 
+         </div> 
+         <div class="blog-tags-box"> 
+          <div class="tags-box artic-tag-box"> 
+           <span class="label">分类专栏：</span> 
+           <a class="tag-link" href="https://blog.csdn.net/bbeymax/category_12663847.html" target="_blank" rel="noopener">路径规划</a> 
+           <span class="label">文章标签：</span> 
+           <a rel="noopener" data-report-query="spm=1001.2101.3001.4223" data-report-click="{&quot;mod&quot;:&quot;popu_626&quot;,&quot;spm&quot;:&quot;1001.2101.3001.4223&quot;,&quot;strategy&quot;:&quot;matlab&quot;,&quot;ab&quot;:&quot;new&quot;,&quot;extra&quot;:&quot;{\&quot;searchword\&quot;:\&quot;matlab\&quot;}&quot;}" data-report-view="{&quot;mod&quot;:&quot;popu_626&quot;,&quot;spm&quot;:&quot;1001.2101.3001.4223&quot;,&quot;strategy&quot;:&quot;matlab&quot;,&quot;ab&quot;:&quot;new&quot;,&quot;extra&quot;:&quot;{\&quot;searchword\&quot;:\&quot;matlab\&quot;}&quot;}" class="tag-link" href="https://so.csdn.net/so/search/s.do?q=matlab&amp;t=all&amp;o=vip&amp;s=&amp;l=&amp;f=&amp;viparticle=&amp;from_tracking_code=tag_word&amp;from_code=app_blog_art" target="_blank">matlab</a> 
+           <a rel="noopener" data-report-query="spm=1001.2101.3001.4223" data-report-click="{&quot;mod&quot;:&quot;popu_626&quot;,&quot;spm&quot;:&quot;1001.2101.3001.4223&quot;,&quot;strategy&quot;:&quot;算法&quot;,&quot;ab&quot;:&quot;new&quot;,&quot;extra&quot;:&quot;{\&quot;searchword\&quot;:\&quot;算法\&quot;}&quot;}" data-report-view="{&quot;mod&quot;:&quot;popu_626&quot;,&quot;spm&quot;:&quot;1001.2101.3001.4223&quot;,&quot;strategy&quot;:&quot;算法&quot;,&quot;ab&quot;:&quot;new&quot;,&quot;extra&quot;:&quot;{\&quot;searchword\&quot;:\&quot;算法\&quot;}&quot;}" class="tag-link" href="https://so.csdn.net/so/search/s.do?q=%E7%AE%97%E6%B3%95&amp;t=all&amp;o=vip&amp;s=&amp;l=&amp;f=&amp;viparticle=&amp;from_tracking_code=tag_word&amp;from_code=app_blog_art" target="_blank">算法</a> 
+          </div> 
+         </div> 
+         <div class="slide-content-box"> 
+          <div class="article-copyright"> 
+           <div class="creativecommons">
+             版权声明：本文为博主原创文章，遵循
+            <a href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener"> CC 4.0 BY-SA </a>版权协议，转载请附上原文出处链接和本声明。 
+           </div> 
+           <div class="article-source-link">
+             本文链接：
+            <a href="https://blog.csdn.net/BBeymax/article/details/138525712" target="_blank">https://blog.csdn.net/BBeymax/article/details/138525712</a> 
+           </div> 
+          </div> 
+         </div> 
+         <div class="operating"> 
+          <a class="href-article-edit slide-toggle">版权</a> 
+         </div> 
+        </div> 
+       </div> 
+      </div> 
+      <div id="blogHuaweiyunAdvert"></div> 
+      <article class="baidu_pl"> 
+       <div id="article_content" class="article_content clearfix"> 
+        <link rel="stylesheet" href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/editerView/kdoc_html_views-1a98987dfd.css"> 
+        <link rel="stylesheet" href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/editerView/ck_htmledit_views-704d5b9767.css"> 
+        <div id="content_views" class="markdown_views prism-atom-one-dark"> 
+         <svg xmlns="http://www.w3.org/2000/svg" style="display: none;"> 
+          <path stroke-linecap="round" d="M5,0 0,2.5 5,5z" id="raphael-marker-block" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path> 
+         </svg> 
+         <p>在上一篇博客中，障碍物都是静态障碍物，DWA算法实际上是可以实现动态避障的，这里我们补充其动态避障代码。<br> 代码的关键主要是动态障碍物的定义。<br> creatSphereObjectDynamic.m(创建动态障碍物，静态障碍物设置为速度为0的动态障碍物)</p> 
+         <pre><code  style="height: 50vh;" class="prism language-matlab"><span class="token keyword">function</span> sphereInfo<span class="token operator">=</span> <span class="token function">creatSphereObjectDynamic</span><span class="token punctuation">(</span>sphereInfo<span class="token punctuation">)</span>
+
+sphereInfo<span class="token punctuation">.</span>centerX <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">70</span> <span class="token number">80</span> <span class="token number">20</span> <span class="token number">40</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+sphereInfo<span class="token punctuation">.</span>centerY <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">70</span> <span class="token number">80</span> <span class="token number">20</span> <span class="token number">40</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+sphereInfo<span class="token punctuation">.</span>centerZ <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">70</span> <span class="token number">80</span> <span class="token number">20</span> <span class="token number">40</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+sphereInfo<span class="token punctuation">.</span>originalcenterX <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">70</span> <span class="token number">80</span> <span class="token number">20</span> <span class="token number">40</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+sphereInfo<span class="token punctuation">.</span>originalcenterY <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">70</span> <span class="token number">80</span> <span class="token number">20</span> <span class="token number">40</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+sphereInfo<span class="token punctuation">.</span>originalcenterZ <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">70</span> <span class="token number">80</span> <span class="token number">20</span> <span class="token number">40</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+sphereInfo<span class="token punctuation">.</span>radius <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">5</span> <span class="token number">8</span> <span class="token number">5</span> <span class="token number">8</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+sphereInfo<span class="token punctuation">.</span>vX <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">0</span> <span class="token number">0</span> <span class="token number">0.1</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+sphereInfo<span class="token punctuation">.</span>vY <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">0</span> <span class="token number">0</span> <span class="token number">0.1</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+sphereInfo<span class="token punctuation">.</span>vZ <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">0</span> <span class="token number">0</span> <span class="token number">0.1</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+sphereInfo<span class="token punctuation">.</span>limtX <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span>
+sphereInfo<span class="token punctuation">.</span>limtY <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span>
+sphereInfo<span class="token punctuation">.</span>limtZ <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">;</span>
+sphereInfo<span class="token punctuation">.</span>exist <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+<span class="token keyword">end</span>
+</code ></pre> 
+         <p>dynamicWindowApproach.m（动态窗口的计算发生的变化，因为需要更新动态障障碍物的位置）</p> 
+         <pre><code  style="height: 50vh;" class="prism language-matlab"><span class="token keyword">function</span> <span class="token punctuation">[</span>u<span class="token punctuation">,</span>trajDB<span class="token punctuation">,</span>sphereInfo<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">dynamicWindowApproach</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span>model<span class="token punctuation">,</span>dt<span class="token punctuation">,</span>paraT<span class="token punctuation">,</span>endPiont<span class="token punctuation">,</span>sphereInfo<span class="token punctuation">,</span>evalParam<span class="token punctuation">)</span>
+<span class="token comment">%%DWA算法实现</span>
+<span class="token comment">%输入</span>
+<span class="token comment">%输出</span>
+
+<span class="token comment">%速度采样</span>
+<span class="token comment">%根据当前状态和运动模型计算当前参数允许的范围</span>
+<span class="token comment">%计算动态窗口</span>
+vs <span class="token operator">=</span> <span class="token function">calcDynamicWindow</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span>model<span class="token punctuation">,</span>dt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">%评价函数计算,推算可用的轨迹</span>
+<span class="token punctuation">[</span>evalDB<span class="token punctuation">,</span>trajDB<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">Evaluation</span><span class="token punctuation">(</span>vs<span class="token punctuation">,</span>model<span class="token punctuation">,</span>paraT<span class="token punctuation">,</span>x<span class="token punctuation">,</span>endPiont<span class="token punctuation">,</span>sphereInfo<span class="token punctuation">,</span>dt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">%更新障碍物信息</span>
+ <span class="token keyword">for</span> n2 <span class="token operator">=</span> <span class="token number">1</span><span class="token operator">:</span><span class="token function">size</span><span class="token punctuation">(</span>sphereInfo<span class="token punctuation">.</span>centerX<span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">)</span>
+        <span class="token comment">%X</span>
+        <span class="token keyword">if</span> sphereInfo<span class="token punctuation">.</span><span class="token function">centerX</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span> <span class="token operator">&gt;=</span> sphereInfo<span class="token punctuation">.</span><span class="token function">originalcenterX</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token operator">+</span>sphereInfo<span class="token punctuation">.</span>limtX <span class="token operator">||</span><span class="token punctuation">...</span>
+                sphereInfo<span class="token punctuation">.</span><span class="token function">centerX</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span> <span class="token operator">&lt;=</span> sphereInfo<span class="token punctuation">.</span><span class="token function">originalcenterX</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token operator">-</span>sphereInfo<span class="token punctuation">.</span>limtX
+        sphereInfo<span class="token punctuation">.</span><span class="token function">vX</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token operator">=</span><span class="token operator">-</span>sphereInfo<span class="token punctuation">.</span><span class="token function">vX</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">end</span>
+         <span class="token comment">%sphereInfo.centerX(n1)=sphereInfo.centerX(n1)+sphereInfo.vX(n1)*t1;</span>
+         <span class="token comment">%Y</span>
+        <span class="token keyword">if</span> sphereInfo<span class="token punctuation">.</span><span class="token function">centerY</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span> <span class="token operator">&gt;=</span> sphereInfo<span class="token punctuation">.</span><span class="token function">originalcenterY</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token operator">+</span>sphereInfo<span class="token punctuation">.</span>limtY <span class="token operator">||</span><span class="token punctuation">...</span>
+                sphereInfo<span class="token punctuation">.</span><span class="token function">centerY</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span> <span class="token operator">&lt;=</span> sphereInfo<span class="token punctuation">.</span><span class="token function">originalcenterY</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token operator">-</span>sphereInfo<span class="token punctuation">.</span>limtY
+        sphereInfo<span class="token punctuation">.</span><span class="token function">vY</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token operator">=</span><span class="token operator">-</span>sphereInfo<span class="token punctuation">.</span><span class="token function">vY</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">end</span>
+         <span class="token comment">%sphereInfo.centerY(n1)=sphereInfo.centerY(n1)+sphereInfo.vY(n1)*t1;</span>
+         <span class="token comment">%z</span>
+        <span class="token keyword">if</span> sphereInfo<span class="token punctuation">.</span><span class="token function">centerZ</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span> <span class="token operator">&gt;=</span> sphereInfo<span class="token punctuation">.</span><span class="token function">originalcenterZ</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token operator">+</span>sphereInfo<span class="token punctuation">.</span>limtZ <span class="token operator">||</span><span class="token punctuation">...</span>
+                sphereInfo<span class="token punctuation">.</span><span class="token function">centerZ</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span> <span class="token operator">&lt;=</span> sphereInfo<span class="token punctuation">.</span><span class="token function">originalcenterZ</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token operator">-</span>sphereInfo<span class="token punctuation">.</span>limtZ
+        sphereInfo<span class="token punctuation">.</span><span class="token function">vZ</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token operator">=</span><span class="token operator">-</span>sphereInfo<span class="token punctuation">.</span><span class="token function">vZ</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">end</span>
+    sphereInfo<span class="token punctuation">.</span><span class="token function">centerX</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token operator">=</span>sphereInfo<span class="token punctuation">.</span><span class="token function">centerX</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token operator">+</span>sphereInfo<span class="token punctuation">.</span><span class="token function">vX</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token operator">*</span>paraT<span class="token punctuation">;</span>
+    sphereInfo<span class="token punctuation">.</span><span class="token function">centerY</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token operator">=</span>sphereInfo<span class="token punctuation">.</span><span class="token function">centerY</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token operator">+</span>sphereInfo<span class="token punctuation">.</span><span class="token function">vY</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token operator">*</span>paraT<span class="token punctuation">;</span>
+    sphereInfo<span class="token punctuation">.</span><span class="token function">centerZ</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token operator">=</span>sphereInfo<span class="token punctuation">.</span><span class="token function">centerZ</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token operator">+</span>sphereInfo<span class="token punctuation">.</span><span class="token function">vZ</span><span class="token punctuation">(</span>n2<span class="token punctuation">)</span><span class="token operator">*</span>paraT<span class="token punctuation">;</span>
+ <span class="token keyword">end</span>
+<span class="token comment">% trajDB</span>
+<span class="token comment">% evalDB</span>
+<span class="token keyword">if</span> <span class="token function">isempty</span><span class="token punctuation">(</span>evalDB<span class="token punctuation">)</span>
+    <span class="token function">disp</span><span class="token punctuation">(</span><span class="token string">'no path to goal!!'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    u<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">0</span> <span class="token number">0</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">;</span><span class="token keyword">return</span><span class="token punctuation">;</span>
+<span class="token keyword">end</span>
+<span class="token comment">%各评价函数归一化处理</span>
+<span class="token keyword">if</span> <span class="token function">sum</span><span class="token punctuation">(</span><span class="token function">evalDB</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">~=</span> <span class="token number">0</span>
+    <span class="token function">sum</span><span class="token punctuation">(</span><span class="token function">evalDB</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">evalDB</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token function">evalDB</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token operator">/</span><span class="token function">sum</span><span class="token punctuation">(</span><span class="token function">evalDB</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">end</span>
+<span class="token keyword">if</span> <span class="token function">sum</span><span class="token punctuation">(</span><span class="token function">evalDB</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">~=</span> <span class="token number">0</span>
+    <span class="token function">evalDB</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token function">evalDB</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token operator">/</span><span class="token function">sum</span><span class="token punctuation">(</span><span class="token function">evalDB</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">end</span>
+<span class="token keyword">if</span> <span class="token function">sum</span><span class="token punctuation">(</span><span class="token function">evalDB</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">~=</span> <span class="token number">0</span>
+    <span class="token function">evalDB</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token function">evalDB</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">)</span><span class="token operator">/</span><span class="token function">sum</span><span class="token punctuation">(</span><span class="token function">evalDB</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">end</span>
+<span class="token comment">%最终评价函数计算，从所有的轨迹中找出性能最优的一组</span>
+feval<span class="token operator">=</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token keyword">for</span> k1 <span class="token operator">=</span> <span class="token number">1</span><span class="token operator">:</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token function">evalDB</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    feval <span class="token operator">=</span> <span class="token punctuation">[</span>feval<span class="token punctuation">;</span><span class="token function">evalParam</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token operator">:</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token operator">*</span><span class="token function">evalDB</span><span class="token punctuation">(</span>k1<span class="token punctuation">,</span><span class="token number">4</span><span class="token operator">:</span><span class="token number">6</span><span class="token punctuation">)</span><span class="token operator">'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token keyword">end</span>
+evalDB<span class="token operator">=</span><span class="token punctuation">[</span>evalDB feval<span class="token punctuation">]</span><span class="token punctuation">;</span><span class="token comment">%纪录每一组轨迹的得分</span>
+<span class="token punctuation">[</span>mav<span class="token punctuation">,</span>ind<span class="token punctuation">]</span> <span class="token operator">=</span><span class="token function">max</span><span class="token punctuation">(</span>feval<span class="token punctuation">)</span><span class="token punctuation">;</span>
+u<span class="token operator">=</span><span class="token function">evalDB</span><span class="token punctuation">(</span>ind<span class="token punctuation">,</span><span class="token number">1</span><span class="token operator">:</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token comment">%返回最优的速度值</span>
+
+<span class="token keyword">end</span>
+</code ></pre> 
+         <p>calcDynamicWindow.m（速度采样空间）</p> 
+         <pre><code  style="height: 50vh;" class="prism language-matlab"><span class="token keyword">function</span> <span class="token punctuation">[</span>vs<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">calcDynamicWindow</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span>model<span class="token punctuation">,</span>dt<span class="token punctuation">)</span>
+<span class="token comment">%速度采样空间计算</span>
+<span class="token comment">%主要考虑速度限制和加速度限制</span>
+<span class="token comment">% 速度限制 (三轴最小速度和三轴最大速度)</span>
+vs <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">0</span> <span class="token number">0</span> <span class="token number">0</span> <span class="token function">model</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token operator">:</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token comment">% %考虑无人机全向运动</span>
+<span class="token comment">% vs = [-model(:,1:3) model(:,1:3)];</span>
+<span class="token comment">%加速度限制</span>
+vd <span class="token operator">=</span><span class="token punctuation">[</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">model</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token operator">*</span>dt <span class="token function">x</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">model</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token operator">*</span>dt <span class="token function">x</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">model</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">)</span><span class="token operator">*</span>dt<span class="token punctuation">...</span>
+    <span class="token function">x</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token function">model</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token operator">*</span>dt <span class="token function">x</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token function">model</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token operator">*</span>dt <span class="token function">x</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token function">model</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">)</span><span class="token operator">*</span>dt<span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token comment">%速度采样空间（未考虑障碍物限制）</span>
+vs <span class="token operator">=</span><span class="token punctuation">[</span><span class="token function">max</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token function">vs</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token function">vd</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token function">max</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token function">vs</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span> <span class="token function">vd</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token function">max</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token function">vs</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span> <span class="token function">vd</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">...</span>
+    <span class="token function">min</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token function">vs</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span> <span class="token function">vd</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token function">min</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token function">vs</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span> <span class="token function">vd</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token function">min</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token function">vs</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">)</span> <span class="token function">vd</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+
+<span class="token keyword">end</span>
+</code ></pre> 
+         <p>Evaluation.m（评价函数）</p> 
+         <pre><code  style="height: 50vh;" class="prism language-matlab"><span class="token keyword">function</span> <span class="token punctuation">[</span>evalDB<span class="token punctuation">,</span>trajDB<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">Evaluation</span><span class="token punctuation">(</span>vs<span class="token punctuation">,</span>model<span class="token punctuation">,</span>paraT<span class="token punctuation">,</span>x<span class="token punctuation">,</span>endPiont<span class="token punctuation">,</span>sphereInfo<span class="token punctuation">,</span>dt<span class="token punctuation">)</span>
+<span class="token comment">%评价函数计算</span>
+<span class="token comment">%评价函数参数存储、轨迹点位置状态存储</span>
+evalDB <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+trajDB <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+calcuDis <span class="token operator">=</span> <span class="token operator">@</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span>y<span class="token punctuation">)</span>  <span class="token function">sqrt</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">y</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">^</span><span class="token number">2</span><span class="token operator">+</span><span class="token punctuation">(</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">y</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">^</span><span class="token number">2</span><span class="token operator">+</span><span class="token punctuation">(</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">y</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">^</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">for</span> vtx <span class="token operator">=</span><span class="token function">vs</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">:</span><span class="token function">model</span><span class="token punctuation">(</span><span class="token number">7</span><span class="token punctuation">)</span><span class="token operator">:</span><span class="token function">vs</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span>
+    <span class="token keyword">for</span> vty<span class="token operator">=</span><span class="token function">vs</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token operator">:</span><span class="token function">model</span><span class="token punctuation">(</span><span class="token number">7</span><span class="token punctuation">)</span><span class="token operator">:</span><span class="token function">vs</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span>
+        <span class="token keyword">for</span> vtz<span class="token operator">=</span><span class="token function">vs</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token operator">:</span><span class="token function">model</span><span class="token punctuation">(</span><span class="token number">7</span><span class="token punctuation">)</span><span class="token operator">:</span><span class="token function">vs</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">)</span>
+            <span class="token comment">%轨迹推算</span>
+            <span class="token punctuation">[</span>xTemp<span class="token punctuation">,</span>traj<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">generateTrajectory</span><span class="token punctuation">(</span>vtx<span class="token punctuation">,</span>vty<span class="token punctuation">,</span>vtz<span class="token punctuation">,</span>paraT<span class="token punctuation">,</span>x<span class="token punctuation">,</span>dt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment">%各评价函数的计算</span>
+            <span class="token comment">%航向评价指标</span>
+            heading <span class="token operator">=</span> <span class="token function">calcHeadingEval</span><span class="token punctuation">(</span>xTemp<span class="token punctuation">,</span>endPiont<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment">%距离评价指标</span>
+<span class="token comment">%             [dist,flag] = calcDisEval(xTemp,sphereInfo);%只存在静态障碍物时</span>
+            <span class="token punctuation">[</span>dist<span class="token punctuation">,</span>flag<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">calcDisEval</span><span class="token punctuation">(</span>xTemp<span class="token punctuation">,</span>sphereInfo<span class="token punctuation">,</span>dt<span class="token punctuation">,</span>paraT<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">%考虑障碍物移动</span>
+            <span class="token comment">%速度得分指标</span>
+            vel <span class="token operator">=</span> <span class="token function">calcuDis</span><span class="token punctuation">(</span><span class="token function">xTemp</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token operator">:</span><span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token number">0</span> <span class="token number">0</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token comment">%计算制动距离（速度采样第三部分，保证不发生碰撞）</span>
+            stopDist <span class="token operator">=</span> <span class="token function">calcBreakingDist</span><span class="token punctuation">(</span>xTemp<span class="token punctuation">,</span>model<span class="token punctuation">,</span>dt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token comment">%当障碍物距离大于制动距离且终点不发生碰撞时</span>
+
+            <span class="token keyword">if</span> dist <span class="token operator">&gt;</span>stopDist <span class="token operator">&amp;&amp;</span> flag <span class="token operator">==</span><span class="token number">0</span>
+                evalDB<span class="token operator">=</span><span class="token punctuation">[</span>evalDB<span class="token punctuation">;</span><span class="token punctuation">[</span>vtx vty vtz heading dist vel<span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+                trajDB<span class="token operator">=</span><span class="token punctuation">[</span>trajDB<span class="token punctuation">;</span>traj<span class="token punctuation">]</span><span class="token punctuation">;</span>
+            <span class="token keyword">end</span>
+        <span class="token keyword">end</span>
+    <span class="token keyword">end</span>
+<span class="token keyword">end</span>
+<span class="token keyword">end</span>
+
+<span class="token comment">%%轨迹推算</span>
+<span class="token keyword">function</span> <span class="token punctuation">[</span>xTemp<span class="token punctuation">,</span>traj<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">generateTrajectory</span><span class="token punctuation">(</span>vtx<span class="token punctuation">,</span>vty<span class="token punctuation">,</span>vtz<span class="token punctuation">,</span>paraT<span class="token punctuation">,</span>x<span class="token punctuation">,</span>dt<span class="token punctuation">)</span>
+t1 <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+ traj <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+xTemp <span class="token operator">=</span> x<span class="token punctuation">;</span>
+<span class="token keyword">while</span> t1 <span class="token operator">&lt;=</span> paraT
+    <span class="token comment">%更新时间</span>
+    t1 <span class="token operator">=</span> t1<span class="token operator">+</span>dt<span class="token punctuation">;</span> 
+    <span class="token comment">%更新状态,假设前向模拟的速度值为恒定值</span>
+    xTemp <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token function">xTemp</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">+</span>dt<span class="token operator">*</span>vtx <span class="token function">xTemp</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token operator">+</span>dt<span class="token operator">*</span>vty <span class="token function">xTemp</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token operator">+</span>dt<span class="token operator">*</span>vtz vtx vty vtz<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token comment">%将轨迹和状态保存在traj中</span>
+    traj <span class="token operator">=</span> <span class="token punctuation">[</span>traj<span class="token punctuation">;</span>xTemp<span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token keyword">end</span>
+<span class="token keyword">end</span>
+<span class="token comment">%%航向评价指标</span>
+<span class="token keyword">function</span> <span class="token punctuation">[</span>heading<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">calcHeadingEval</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span>endPiont<span class="token punctuation">)</span>
+<span class="token comment">%以运动方向向量和当前位置与终点连线的向量的夹角(单位为°)</span>
+theta <span class="token operator">=</span> <span class="token number">180</span><span class="token operator">-</span><span class="token function">acosd</span><span class="token punctuation">(</span><span class="token function">dot</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token function">endPiont</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token function">endPiont</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token function">endPiont</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">...</span>
+    <span class="token punctuation">[</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">/</span><span class="token punctuation">(</span><span class="token function">norm</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token function">endPiont</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token function">endPiont</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token function">endPiont</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">...</span>
+    <span class="token operator">*</span><span class="token function">norm</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">if</span> theta <span class="token operator">&lt;=</span> <span class="token number">0</span>
+    heading <span class="token operator">=</span> <span class="token operator">-</span>theta<span class="token punctuation">;</span>
+<span class="token keyword">else</span>
+    heading <span class="token operator">=</span> theta<span class="token punctuation">;</span>
+<span class="token keyword">end</span>
+
+<span class="token comment">% if max(x) ==0</span>
+<span class="token comment">%     heading =0;</span>
+<span class="token comment">% end</span>
+<span class="token keyword">if</span> <span class="token function">isnan</span><span class="token punctuation">(</span>heading<span class="token punctuation">)</span>
+    heading <span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token keyword">end</span>
+<span class="token keyword">end</span>
+
+<span class="token comment">% % %%障碍物距离指标</span>
+<span class="token comment">% % function [dist,flag] = calcDisEval(x,sphereInfo)</span>
+<span class="token comment">% % calcuDis = @(x,y)  sqrt((x(1)-y(1))^2+(x(2)-y(2))^2+(x(3)-y(3))^2);</span>
+<span class="token comment">% % dist = 100; %没有障碍物时的默认值</span>
+<span class="token comment">% % flag =0;%碰到障碍物则置为1；</span>
+<span class="token comment">% % for n1 = 1:size(sphereInfo.centerX,2)</span>
+<span class="token comment">% %     center =[sphereInfo.centerX(n1),sphereInfo.centerY(n1),sphereInfo.centerZ(n1)];</span>
+<span class="token comment">% %     disttemp = calcuDis(x(:,1:3),center)-sphereInfo.radius(n1);</span>
+<span class="token comment">% %     if(disttemp &lt; 0)</span>
+<span class="token comment">% %         flag =1;</span>
+<span class="token comment">% %         break;</span>
+<span class="token comment">% %     else</span>
+<span class="token comment">% %         %选取所有障碍物中距离最小值</span>
+<span class="token comment">% %         if dist &gt; disttemp</span>
+<span class="token comment">% %             dist =disttemp;</span>
+<span class="token comment">% %         end</span>
+<span class="token comment">% %     end</span>
+<span class="token comment">% % end</span>
+<span class="token comment">% % %%%需要根据实际更改</span>
+<span class="token comment">% % %限定障碍物距离最大值，如果不限定，则其占比会非常大 20效果较好</span>
+<span class="token comment">% % if dist &gt;= 20</span>
+<span class="token comment">% %     dist = 20;</span>
+<span class="token comment">% % end</span>
+<span class="token comment">% % end</span>
+
+<span class="token comment">%%考虑动态的障碍物距离指标</span>
+<span class="token keyword">function</span> <span class="token punctuation">[</span>dist<span class="token punctuation">,</span>flag<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">calcDisEval</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span>sphereInfo<span class="token punctuation">,</span>dt<span class="token punctuation">,</span>paraT<span class="token punctuation">)</span>
+calcuDis <span class="token operator">=</span> <span class="token operator">@</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span>y<span class="token punctuation">)</span>  <span class="token function">sqrt</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">y</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">^</span><span class="token number">2</span><span class="token operator">+</span><span class="token punctuation">(</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">y</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">^</span><span class="token number">2</span><span class="token operator">+</span><span class="token punctuation">(</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">y</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">^</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+dist <span class="token operator">=</span> <span class="token number">100</span><span class="token punctuation">;</span> <span class="token comment">%没有障碍物时的默认值</span>
+flag <span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span><span class="token comment">%碰到障碍物则置为1；</span>
+<span class="token keyword">for</span> t1 <span class="token operator">=</span><span class="token number">0</span><span class="token operator">:</span>dt<span class="token operator">:</span>paraT
+    <span class="token keyword">for</span> n1 <span class="token operator">=</span> <span class="token number">1</span><span class="token operator">:</span><span class="token function">size</span><span class="token punctuation">(</span>sphereInfo<span class="token punctuation">.</span>centerX<span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">)</span>
+        <span class="token comment">%考虑障碍物移动，当球心位置大于或小于限制值时，运动方向反向</span>
+        
+        <span class="token comment">%X</span>
+        <span class="token keyword">if</span> sphereInfo<span class="token punctuation">.</span><span class="token function">centerX</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span> <span class="token operator">&gt;=</span> sphereInfo<span class="token punctuation">.</span><span class="token function">originalcenterX</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token operator">+</span>sphereInfo<span class="token punctuation">.</span>limtX <span class="token operator">||</span><span class="token punctuation">...</span>
+                sphereInfo<span class="token punctuation">.</span><span class="token function">centerX</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span> <span class="token operator">&lt;=</span> sphereInfo<span class="token punctuation">.</span><span class="token function">originalcenterX</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token operator">-</span>sphereInfo<span class="token punctuation">.</span>limtX
+        sphereInfo<span class="token punctuation">.</span><span class="token function">vX</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token operator">=</span><span class="token operator">-</span>sphereInfo<span class="token punctuation">.</span><span class="token function">vX</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">end</span>
+         <span class="token comment">%sphereInfo.centerX(n1)=sphereInfo.centerX(n1)+sphereInfo.vX(n1)*t1;</span>
+         <span class="token comment">%Y</span>
+        <span class="token keyword">if</span> sphereInfo<span class="token punctuation">.</span><span class="token function">centerY</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span> <span class="token operator">&gt;=</span> sphereInfo<span class="token punctuation">.</span><span class="token function">originalcenterY</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token operator">+</span>sphereInfo<span class="token punctuation">.</span>limtY <span class="token operator">||</span><span class="token punctuation">...</span>
+                sphereInfo<span class="token punctuation">.</span><span class="token function">centerY</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span> <span class="token operator">&lt;=</span> sphereInfo<span class="token punctuation">.</span><span class="token function">originalcenterY</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token operator">-</span>sphereInfo<span class="token punctuation">.</span>limtY
+        sphereInfo<span class="token punctuation">.</span><span class="token function">vY</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token operator">=</span><span class="token operator">-</span>sphereInfo<span class="token punctuation">.</span><span class="token function">vY</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">end</span>
+         <span class="token comment">%sphereInfo.centerY(n1)=sphereInfo.centerY(n1)+sphereInfo.vY(n1)*t1;</span>
+         <span class="token comment">%z</span>
+        <span class="token keyword">if</span> sphereInfo<span class="token punctuation">.</span><span class="token function">centerZ</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span> <span class="token operator">&gt;=</span> sphereInfo<span class="token punctuation">.</span><span class="token function">originalcenterZ</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token operator">+</span>sphereInfo<span class="token punctuation">.</span>limtZ <span class="token operator">||</span><span class="token punctuation">...</span>
+                sphereInfo<span class="token punctuation">.</span><span class="token function">centerZ</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span> <span class="token operator">&lt;=</span> sphereInfo<span class="token punctuation">.</span><span class="token function">originalcenterZ</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token operator">-</span>sphereInfo<span class="token punctuation">.</span>limtZ
+        sphereInfo<span class="token punctuation">.</span><span class="token function">vZ</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token operator">=</span><span class="token operator">-</span>sphereInfo<span class="token punctuation">.</span><span class="token function">vZ</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">end</span>
+         <span class="token comment">%sphereInfo.centerZ(n1)=sphereInfo.centerZ(n1)+sphereInfo.vZ(n1)*t1;</span>
+        center <span class="token operator">=</span><span class="token punctuation">[</span>sphereInfo<span class="token punctuation">.</span><span class="token function">centerX</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token operator">+</span>sphereInfo<span class="token punctuation">.</span><span class="token function">vX</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token operator">*</span>t1<span class="token punctuation">,</span><span class="token punctuation">...</span>
+            sphereInfo<span class="token punctuation">.</span><span class="token function">centerY</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token operator">+</span>sphereInfo<span class="token punctuation">.</span><span class="token function">vY</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token operator">*</span>t1<span class="token punctuation">,</span><span class="token punctuation">...</span>
+            sphereInfo<span class="token punctuation">.</span><span class="token function">centerZ</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token operator">+</span>sphereInfo<span class="token punctuation">.</span><span class="token function">vZ</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token operator">*</span>t1<span class="token punctuation">]</span><span class="token punctuation">;</span>
+        disttemp <span class="token operator">=</span> <span class="token function">calcuDis</span><span class="token punctuation">(</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token operator">:</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token operator">:</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">,</span>center<span class="token punctuation">)</span><span class="token operator">-</span>sphereInfo<span class="token punctuation">.</span><span class="token function">radius</span><span class="token punctuation">(</span>n1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>disttemp <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span>
+            flag <span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">;</span> <span class="token comment">%发生碰撞设置为1</span>
+            <span class="token keyword">break</span><span class="token punctuation">;</span>
+        <span class="token keyword">else</span>
+        <span class="token comment">%选取所有障碍物中距离最小值</span>
+            <span class="token keyword">if</span> dist <span class="token operator">&gt;</span> disttemp
+            dist <span class="token operator">=</span>disttemp<span class="token punctuation">;</span>
+            <span class="token keyword">end</span>
+        <span class="token keyword">end</span>
+    <span class="token keyword">end</span>  
+<span class="token keyword">end</span>
+
+<span class="token comment">%%%需要根据实际更改</span>
+<span class="token comment">%限定障碍物距离最大值，如果不限定，则其占比会非常大 20效果较好</span>
+<span class="token keyword">if</span> dist <span class="token operator">&gt;=</span> <span class="token number">20</span>
+    dist <span class="token operator">=</span> <span class="token number">20</span><span class="token punctuation">;</span>
+<span class="token keyword">end</span>
+<span class="token comment">% sphereInfo.centerX(n1)=sphereInfo.centerX(n1)+sphereInfo.vX(n1)*paraT;</span>
+<span class="token comment">% sphereInfo.centerY(n1)=sphereInfo.centerY(n1)+sphereInfo.vY(n1)*paraT;</span>
+<span class="token comment">% sphereInfo.centerZ(n1)=sphereInfo.centerZ(n1)+sphereInfo.vZ(n1)*paraT;</span>
+<span class="token keyword">end</span>
+
+<span class="token comment">%%计算制动距离</span>
+<span class="token keyword">function</span> stopDist <span class="token operator">=</span> <span class="token function">calcBreakingDist</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span>model<span class="token punctuation">,</span>dt<span class="token punctuation">)</span>
+calcuDis <span class="token operator">=</span> <span class="token operator">@</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span>y<span class="token punctuation">)</span>  <span class="token function">sqrt</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">y</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">^</span><span class="token number">2</span><span class="token operator">+</span><span class="token punctuation">(</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">y</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">^</span><span class="token number">2</span><span class="token operator">+</span><span class="token punctuation">(</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token function">y</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">^</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">%将曲线的距离转换为一小段一小段直线</span>
+stopDist <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+vx<span class="token operator">=</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+vy<span class="token operator">=</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+vz<span class="token operator">=</span><span class="token function">x</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">while</span> vx<span class="token operator">&gt;</span><span class="token number">0</span> <span class="token operator">||</span> vy <span class="token operator">&gt;</span> <span class="token number">0</span> <span class="token operator">||</span> vz <span class="token operator">&gt;</span><span class="token number">0</span>
+    stopDist <span class="token operator">=</span> stopDist<span class="token operator">+</span><span class="token function">calcuDis</span><span class="token punctuation">(</span><span class="token punctuation">[</span>vx<span class="token operator">*</span>dt vy<span class="token operator">*</span>dt vz<span class="token operator">*</span>dt<span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token number">0</span> <span class="token number">0</span> <span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> vx<span class="token operator">&gt;</span><span class="token number">0</span>
+        vx<span class="token operator">=</span>vx<span class="token operator">-</span><span class="token function">model</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span><span class="token operator">*</span>dt<span class="token punctuation">;</span>
+    <span class="token keyword">end</span>
+    <span class="token keyword">if</span> vy<span class="token operator">&gt;</span><span class="token number">0</span>
+        vy<span class="token operator">=</span>vy<span class="token operator">-</span><span class="token function">model</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token operator">*</span>dt<span class="token punctuation">;</span>
+    <span class="token keyword">end</span>
+    <span class="token keyword">if</span> vz<span class="token operator">&gt;</span><span class="token number">0</span>
+        vz<span class="token operator">=</span>vz<span class="token operator">-</span><span class="token function">model</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">)</span><span class="token operator">*</span>dt<span class="token punctuation">;</span>
+    <span class="token keyword">end</span>
+<span class="token keyword">end</span>
+<span class="token keyword">end</span>
+
+
+</code ></pre> 
+         <p>drawSphereObject.m（画障碍物）</p> 
+         <pre><code  style="height: 50vh;" class="prism language-matlab"><span class="token keyword">function</span> <span class="token function">drawSphereObject</span><span class="token punctuation">(</span>sphereInfo<span class="token punctuation">,</span>colorMatSphere<span class="token punctuation">,</span>pellucidity<span class="token punctuation">)</span>
+ 
+<span class="token keyword">if</span> sphereInfo<span class="token punctuation">.</span>exist
+    <span class="token keyword">for</span> k1 <span class="token operator">=</span> <span class="token number">1</span><span class="token operator">:</span><span class="token function">size</span><span class="token punctuation">(</span>sphereInfo<span class="token punctuation">.</span>centerX<span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">)</span>
+        xCoor <span class="token operator">=</span> sphereInfo<span class="token punctuation">.</span><span class="token function">centerX</span><span class="token punctuation">(</span>k1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        yCoor <span class="token operator">=</span> sphereInfo<span class="token punctuation">.</span><span class="token function">centerY</span><span class="token punctuation">(</span>k1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        zCoor <span class="token operator">=</span> sphereInfo<span class="token punctuation">.</span><span class="token function">centerZ</span><span class="token punctuation">(</span>k1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        radius <span class="token operator">=</span> sphereInfo<span class="token punctuation">.</span><span class="token function">radius</span><span class="token punctuation">(</span>k1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        
+        <span class="token punctuation">[</span>x<span class="token punctuation">,</span>y<span class="token punctuation">,</span>z<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token function">sphere</span><span class="token punctuation">(</span><span class="token number">50</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">mesh</span><span class="token punctuation">(</span>x<span class="token operator">*</span>radius<span class="token operator">+</span>xCoor<span class="token punctuation">,</span>y<span class="token operator">*</span>radius<span class="token operator">+</span>yCoor<span class="token punctuation">,</span>z<span class="token operator">*</span>radius<span class="token operator">+</span>zCoor<span class="token punctuation">,</span><span class="token string">'FaceColor'</span><span class="token punctuation">,</span>colorMatSphere<span class="token punctuation">,</span><span class="token string">'EdgeColor'</span><span class="token punctuation">,</span><span class="token string">'none'</span><span class="token punctuation">,</span><span class="token string">'FaceAlpha'</span><span class="token punctuation">,</span>pellucidity<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        
+        
+    <span class="token keyword">end</span> 
+    
+<span class="token keyword">end</span>
+ 
+<span class="token keyword">end</span>
+</code ></pre> 
+         <p>代码运行结果<br> <img src="https://i-blog.csdnimg.cn/blog_migrate/93dcb501001260d12f976ba6801d42f0.png" alt="最下面的障碍物即为动态的"><br> 代码地址：https://blog.csdn.net/BBeymax?type=download<br> 代码中都有详细注释，跑不通可以私聊。</p> 
+        </div> 
+        <link href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/editerView/markdown_views-a5d25dd831.css" rel="stylesheet"> 
+        <link href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/style-e504d6a974.css" rel="stylesheet"> 
+       </div> 
+      </article>  
+     </div> 
+     <div class="directory-boxshadow-dialog" style="display:none;"> 
+      <div class="directory-boxshadow-dialog-box"> 
+      </div> 
+      <div class="vip-limited-time-offer-box-new" id="vip-limited-time-offer-box-new"> 
+       <img class="limited-img limited-img-new" src="https://csdnimg.cn/release/blogv2/dist/pc/img/vip-limited-close-newWhite.png"> 
+       <div class="vip-limited-time-top">
+         确定要放弃本次机会？ 
+       </div> 
+       <span class="vip-limited-time-text">福利倒计时</span> 
+       <div class="limited-time-box-new"> 
+        <span class="time-hour"></span> 
+        <i>:</i> 
+        <span class="time-minite"></span> 
+        <i>:</i> 
+        <span class="time-second"></span> 
+       </div> 
+       <div class="limited-time-vip-box"> 
+        <p> <img class="coupon-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/vip-limited-close-roup.png"> <span class="def">立减 ¥</span> <span class="active limited-num"></span> </p> 
+        <span class="">普通VIP年卡可用</span> 
+       </div> 
+       <a class="limited-time-btn-new" href="https://mall.csdn.net/vip" data-report-click="{&quot;spm&quot;:&quot;1001.2101.3001.9621&quot;}" data-report-query="spm=1001.2101.3001.9621">立即使用</a> 
+      </div> 
+     </div> 
+     <div class="more-toolbox-new more-toolbar" id="toolBarBox"> 
+      <div class="left-toolbox"> 
+       <div class="toolbox-left"> 
+        <div class="profile-box"> 
+         <a class="profile-href" target="_blank" href="https://blog.csdn.net/BBeymax"><img class="profile-img" src="https://profile-avatar.csdnimg.cn/ea2b880a2746405e9e13ef2e8ad25f1f_bbeymax.jpg!1"> <span class="profile-name"> YBayMax </span> </a> 
+        </div> 
+        <div class="profile-attend"> 
+         <a class="tool-attend tool-bt-button tool-bt-attend" href="javascript:;" data-report-view="{&quot;mod&quot;:&quot;1592215036_002&quot;,&quot;spm&quot;:&quot;1001.2101.3001.4232&quot;,&quot;extend1&quot;:&quot;关注&quot;}">关注</a> 
+         <a class="tool-item-follow active-animation" style="display:none;">关注</a> 
+        </div> 
+       </div> 
+       <div class="toolbox-middle"> 
+        <ul class="toolbox-list"> 
+         <li class="tool-item tool-item-size tool-active is-like" id="is-like" data-type="bottom"> <a class="tool-item-href"> <img style="display:none;" id="is-like-imgactive-animation-like" class="animation-dom active-animation" src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarThumbUpactive.png" alt=""> <img class="isactive" style="display:none" id="is-like-imgactive" src="https://csdnimg.cn/release/blogv2/dist/pc/img/toolbar/like-active.png" alt=""> <img class="isdefault" style="display:block" id="is-like-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/toolbar/like.png" alt=""> <span id="spanCount" class="count "> 13 </span> </a> 
+          <div class="tool-hover-tip">
+           <span class="text space">点赞</span>
+          </div> </li> 
+         <li class="tool-item tool-item-size tool-active is-unlike" id="is-unlike"> <a class="tool-item-href"> <img class="isactive" style="margin-right:0px;display:none" id="is-unlike-imgactive" src="https://csdnimg.cn/release/blogv2/dist/pc/img/toolbar/unlike-active.png" alt=""> <img class="isdefault" style="margin-right:0px;display:block" id="is-unlike-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/toolbar/unlike.png" alt=""> <span id="unlikeCount" class="count "></span> </a> 
+          <div class="tool-hover-tip">
+           <span class="text space">踩</span>
+          </div> </li> 
+         <li class="tool-item tool-item-size tool-active is-collection "> <a class="tool-item-href" href="javascript:;" data-report-click="{&quot;mod&quot;:&quot;popu_824&quot;,&quot;spm&quot;:&quot;1001.2101.3001.4130&quot;,&quot;ab&quot;:&quot;new&quot;}"> <img style="display:none" id="is-collection-img-collection" class="animation-dom active-animation" src="https://csdnimg.cn/release/blogv2/dist/pc/img/toolbar/collect-active.png" alt=""> <img class="isdefault" id="is-collection-img" style="display:block" src="https://csdnimg.cn/release/blogv2/dist/pc/img/toolbar/collect.png" alt=""> <img class="isactive" id="is-collection-imgactive" style="display:none" src="https://csdnimg.cn/release/blogv2/dist/pc/img/newCollectActive.png" alt=""> <span class="count get-collection " data-num="19" id="get-collection"> 19 </span> </a> 
+          <div class="tool-hover-tip collect"> 
+           <div class="collect-operate-box"> 
+            <span class="collect-text" id="is-collection"> 收藏 </span> 
+           </div> 
+          </div> 
+          <div class="tool-active-list"> 
+           <div class="text">
+             觉得还不错? 
+            <span class="collect-text" id="tool-active-list-collection"> 一键收藏 </span> 
+            <img id="tool-active-list-close" src="https://csdnimg.cn/release/blogv2/dist/pc/img/collectionCloseWhite.png" alt=""> 
+           </div> 
+          </div> </li> 
+         <li class="tool-item tool-item-size tool-active tool-item-comment"> 
+          <div class="guide-rr-first"> 
+           <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/guideRedReward01.png" alt=""> 
+           <button class="btn-guide-known">知道了</button> 
+          </div> <a class="tool-item-href go-side-comment" data-report-click="{&quot;spm&quot;:&quot;1001.2101.3001.7009&quot;}"> <img class="isdefault" src="https://csdnimg.cn/release/blogv2/dist/pc/img/toolbar/comment.png" alt=""> <span class="count"> 5 </span> </a> 
+          <div class="tool-hover-tip">
+           <span class="text space">评论</span>
+          </div> </li> 
+         <li class="tool-item tool-item-size tool-active tool-QRcode" data-type="article" id="tool-share"> <a class="tool-item-href" href="javascript:;" data-report-view="{&quot;spm&quot;:&quot;3001.4129&quot;,&quot;extra&quot;:{&quot;type&quot;:&quot;blogdetail&quot;}}"> <img class="isdefault" src="https://csdnimg.cn/release/blogv2/dist/pc/img/toolbar/share.png" alt=""> <span class="count">分享</span> </a> 
+          <div class="QRcode active" id="tool-QRcode"> 
+           <div class="share-bg-box"> 
+            <div class="share-content"> 
+             <a id="copyPosterUrl" data-type="link" class="btn-share">复制链接</a> 
+            </div> 
+            <div class="share-content"> 
+             <a class="btn-share" data-type="qq">分享到 QQ</a> 
+            </div> 
+            <div class="share-content"> 
+             <a class="btn-share" data-type="weibo">分享到新浪微博</a> 
+            </div> 
+            <div class="share-code"> 
+             <div class="share-code-box" id="shareCode"></div> 
+             <div class="share-code-text"> 
+              <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/share/icon-wechat.png" alt="">扫一扫 
+             </div> 
+            </div> 
+           </div> 
+          </div> </li> 
+         <li class="tool-item tool-item-size tool-active tool-item-reward"> <a class="tool-item-href" href="javascript:;" data-report-click="{&quot;mod&quot;:&quot;popu_830&quot;,&quot;spm&quot;:&quot;1001.2101.3001.4237&quot;,&quot;dest&quot;:&quot;&quot;,&quot;ab&quot;:&quot;new&quot;}"> <img class="isdefault reward-bt" id="rewardBtNew" src="https://csdnimg.cn/release/blogv2/dist/pc/img/toolbar/reward.png" alt="打赏"> <span class="count">打赏</span> </a> 
+          <div class="tool-hover-tip">
+           <span class="text space">打赏</span>
+          </div> </li> 
+         <li class="tool-item tool-item-size tool-active is-more" id="is-more"> <a class="tool-item-href"> <img class="isdefault" style="margin-right:0px;display:block" src="https://csdnimg.cn/release/blogv2/dist/pc/img/toolbar/more.png" alt=""> <span class="count"></span> </a> 
+          <div class="more-opt-box"> 
+           <div class="mini-box"> 
+            <a class="tool-item-href" id="rewardBtNewHide" data-report-click="{&quot;spm&quot;:&quot;3001.4237&quot;,&quot;extra&quot;:&quot;{\&quot;type\&quot;:\&quot;hide\&quot;}&quot;}"> <img class="isdefault reward-bt" src="https://csdnimg.cn/release/blogv2/dist/pc/img/toolbar/reward.png" alt="打赏"> <span class="count">打赏</span> </a> 
+            <a class="tool-item-href" id="toolReportBtnHide"> <img class="isdefault" src="https://csdnimg.cn/release/blogv2/dist/pc/img/toolbar/report.png" alt=""> <span class="count">举报</span> </a> 
+           </div> 
+           <div class="normal-box"> 
+            <a class="tool-item-href" id="toolReportBtnHideNormal"> <img class="isdefault" src="https://csdnimg.cn/release/blogv2/dist/pc/img/toolbar/report.png" alt=""> <span class="count">举报</span> </a> 
+           </div> 
+          </div> </li> 
+        </ul> 
+       </div> 
+       <div class="toolbox-right"> 
+        <div class="tool-directory"> 
+         <a class="bt-columnlist-show" data-id="12663847" data-free="true" data-description="" data-subscribe="false" data-title="路径规划" data-img="https://i-blog.csdnimg.cn/columns/default/20201014180756927.png?x-oss-process=image/resize,m_fixed,h_224,w_224" data-url="https://blog.csdn.net/bbeymax/category_12663847.html" data-sum="2" data-people="2" data-price="0" data-hotrank="0" data-status="true" data-oldprice="0" data-join="false" data-studyvip="true" data-studysubscribe="false" data-report-view="{&quot;spm&quot;:&quot;1001.2101.3001.6334&quot;,&quot;extend1&quot;:&quot;专栏目录&quot;}" data-report-click="{&quot;spm&quot;:&quot;1001.2101.3001.6334&quot;,&quot;extend1&quot;:&quot;专栏目录&quot;}">专栏目录</a> 
+        </div> 
+       </div> 
+      </div> 
+     </div>   
+     <a id="commentBox" name="commentBox"></a> 
+     <div id="pcCommentBox" class="comment-box comment-box-new2 login-comment-box-new" style="display:none"> 
+      <div class="has-comment" style="display:block"> 
+       <div class="one-line-box"> 
+        <div class="has-comment-tit go-side-comment"> 
+         <span class="count">5</span>&nbsp;条评论 
+        </div> 
+        <div class="has-comment-con comment-operate-item"></div> 
+        <a class="has-comment-bt-right go-side-comment focus">写评论</a> 
+       </div> 
+      </div> 
+     </div> 
+     <div class="first-recommend-box recommend-box recommend-highlight-default"> 
+      <div class="recommend-item-box type_blog clearfix" data-url="https://blog.csdn.net/weixin_37835423/article/details/89683302" data-report-view="{&quot;ab&quot;:&quot;new&quot;,&quot;spm&quot;:&quot;1001.2101.3001.6661.1&quot;,&quot;mod&quot;:&quot;popu_871&quot;,&quot;extra&quot;:&quot;{\&quot;highlightScore\&quot;:0.0,\&quot;utm_medium\&quot;:\&quot;distribute.pc_relevant_t0.none-task-blog-2~default~BlogCommendFromBaidu~Rate-1-89683302-blog-138525712.235^v43^pc_blog_bottom_relevance_base1\&quot;,\&quot;dist_request_id\&quot;:\&quot;1746173663400_85645\&quot;}&quot;,&quot;dist_request_id&quot;:&quot;1746173663400_85645&quot;,&quot;ab_strategy&quot;:&quot;vipdefault&quot;,&quot;index&quot;:&quot;1&quot;,&quot;strategy&quot;:&quot;2~default~BlogCommendFromBaidu~Rate&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/weixin_37835423/article/details/89683302&quot;}"> 
+       <div class="content-box"> 
+        <div class="content-blog display-flex"> 
+         <div class="title-box"> 
+          <span class="type"> <img src="https://csdnimg.cn/release/blogv2/dist/components/img/blogType.png" alt=""> <span class="tip">博客</span> </span> 
+          <a href="https://blog.csdn.net/weixin_37835423/article/details/89683302" class="tit" target="_blank" data-report-click="{&quot;ab&quot;:&quot;new&quot;,&quot;spm&quot;:&quot;1001.2101.3001.6661.1&quot;,&quot;mod&quot;:&quot;popu_871&quot;,&quot;extra&quot;:&quot;{\&quot;highlightScore\&quot;:0.0,\&quot;utm_medium\&quot;:\&quot;distribute.pc_relevant_t0.none-task-blog-2~default~BlogCommendFromBaidu~Rate-1-89683302-blog-138525712.235^v43^pc_blog_bottom_relevance_base1\&quot;,\&quot;dist_request_id\&quot;:\&quot;1746173663400_85645\&quot;}&quot;,&quot;dist_request_id&quot;:&quot;1746173663400_85645&quot;,&quot;ab_strategy&quot;:&quot;vipdefault&quot;,&quot;index&quot;:&quot;1&quot;,&quot;strategy&quot;:&quot;2~default~BlogCommendFromBaidu~Rate&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/weixin_37835423/article/details/89683302&quot;}" data-report-query="spm=1001.2101.3001.6661.1&amp;utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-1-89683302-blog-138525712.235%5Ev43%5Epc_blog_bottom_relevance_base1&amp;depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-1-89683302-blog-138525712.235%5Ev43%5Epc_blog_bottom_relevance_base1"> 
+           <div class="left ellipsis-online ellipsis-online-1">
+            机器人局部
+            <em>动态</em>
+            <em>避障</em>
+            <em>算法</em>
+            <em>dwa</em>解析
+           </div> </a> 
+         </div> 
+         <div class="info-box display-flex"> 
+          <div class="info"> 
+           <a href="https://blog.csdn.net/weixin_37835423" target="_blank"><span class="blog-title">chennuo0125的博客</span></a> 
+          </div> 
+          <div class="info display-flex"> 
+           <span class="info-block time">04-30</span> 
+           <span class="info-block read"><img class="read-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt=""> 1万+ </span> 
+          </div> 
+         </div> 
+        </div> 
+        <div class="desc-box"> 
+         <a href="https://blog.csdn.net/weixin_37835423/article/details/89683302" target="_blank" data-report-click="{&quot;ab&quot;:&quot;new&quot;,&quot;spm&quot;:&quot;1001.2101.3001.6661.1&quot;,&quot;mod&quot;:&quot;popu_871&quot;,&quot;extra&quot;:&quot;{\&quot;highlightScore\&quot;:0.0,\&quot;utm_medium\&quot;:\&quot;distribute.pc_relevant_t0.none-task-blog-2~default~BlogCommendFromBaidu~Rate-1-89683302-blog-138525712.235^v43^pc_blog_bottom_relevance_base1\&quot;,\&quot;dist_request_id\&quot;:\&quot;1746173663400_85645\&quot;}&quot;,&quot;dist_request_id&quot;:&quot;1746173663400_85645&quot;,&quot;ab_strategy&quot;:&quot;vipdefault&quot;,&quot;index&quot;:&quot;1&quot;,&quot;strategy&quot;:&quot;2~default~BlogCommendFromBaidu~Rate&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/weixin_37835423/article/details/89683302&quot;}" data-report-query="spm=1001.2101.3001.6661.1&amp;utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-1-89683302-blog-138525712.235%5Ev43%5Epc_blog_bottom_relevance_base1&amp;depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-1-89683302-blog-138525712.235%5Ev43%5Epc_blog_bottom_relevance_base1"> 
+          <div class="desc ellipsis-online ellipsis-online-1">
+           机器人局部
+           <em>动态</em>
+           <em>避障</em>
+           <em>算法</em>
+           <em>dwa</em>解析 简介 &nbsp;　　
+           <em>dwa</em>
+           <em>算法</em>全称叫
+           <em>动态</em>窗口法（dynamic window approach），其
+           <em>算法</em>过程主要分为仿真获取机器人的运动轨迹、对轨迹进行评价选择最优轨迹两个主要过程，
+           <em>动态</em>窗口表达的是仿真的运动轨迹数量有限，主要是因为机器人在较短的控制周期内只能达到一定的速度。 一、机器人如何仿真获取运动轨迹 1、获取机器人速度样本 &nbsp; 　　根据机器人...
+          </div> </a> 
+        </div> 
+       </div> 
+      </div> 
+     </div>  
+     <div class="second-recommend-box recommend-box recommend-highlight-default"> 
+      <div class="recommend-item-box type_blog clearfix" data-url="https://blog.csdn.net/xi_shui/article/details/120317156" data-report-view="{&quot;ab&quot;:&quot;new&quot;,&quot;spm&quot;:&quot;1001.2101.3001.6650.1&quot;,&quot;mod&quot;:&quot;popu_387&quot;,&quot;extra&quot;:&quot;{\&quot;highlightScore\&quot;:0.0,\&quot;utm_medium\&quot;:\&quot;distribute.pc_relevant.none-task-blog-2~default~BlogCommendFromBaidu~Rate-1-120317156-blog-138525712.235^v43^pc_blog_bottom_relevance_base1\&quot;,\&quot;dist_request_id\&quot;:\&quot;1746173663400_85645\&quot;}&quot;,&quot;dist_request_id&quot;:&quot;1746173663400_85645&quot;,&quot;ab_strategy&quot;:&quot;vipdefault&quot;,&quot;index&quot;:&quot;1&quot;,&quot;strategy&quot;:&quot;2~default~BlogCommendFromBaidu~Rate&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/xi_shui/article/details/120317156&quot;}"> 
+       <div class="content-box"> 
+        <div class="content-blog display-flex"> 
+         <div class="title-box"> 
+          <span class="type"> <img src="https://csdnimg.cn/release/blogv2/dist/components/img/blogType.png" alt=""> <span class="tip">博客</span> </span> 
+          <a href="https://blog.csdn.net/xi_shui/article/details/120317156" class="tit" target="_blank" data-report-click="{&quot;ab&quot;:&quot;new&quot;,&quot;spm&quot;:&quot;1001.2101.3001.6650.1&quot;,&quot;mod&quot;:&quot;popu_387&quot;,&quot;extra&quot;:&quot;{\&quot;highlightScore\&quot;:0.0,\&quot;utm_medium\&quot;:\&quot;distribute.pc_relevant.none-task-blog-2~default~BlogCommendFromBaidu~Rate-1-120317156-blog-138525712.235^v43^pc_blog_bottom_relevance_base1\&quot;,\&quot;dist_request_id\&quot;:\&quot;1746173663400_85645\&quot;}&quot;,&quot;dist_request_id&quot;:&quot;1746173663400_85645&quot;,&quot;ab_strategy&quot;:&quot;vipdefault&quot;,&quot;index&quot;:&quot;1&quot;,&quot;strategy&quot;:&quot;2~default~BlogCommendFromBaidu~Rate&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/xi_shui/article/details/120317156&quot;}" data-report-query="spm=1001.2101.3001.6650.1&amp;utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-1-120317156-blog-138525712.235%5Ev43%5Epc_blog_bottom_relevance_base1&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-1-120317156-blog-138525712.235%5Ev43%5Epc_blog_bottom_relevance_base1"> 
+           <div class="left ellipsis-online ellipsis-online-1">
+            【
+            <em>MATLAB</em>】
+            <em>DWA</em> 加入
+            <em>动态</em>
+            <em>障碍物</em>
+           </div> </a> 
+         </div> 
+         <div class="info-box display-flex"> 
+          <div class="info"> 
+           <a href="https://blog.csdn.net/xi_shui" target="_blank"><span class="blog-title">个人笔记仅供本人查阅参考</span></a> 
+          </div> 
+          <div class="info display-flex"> 
+           <span class="info-block time">09-15</span> 
+           <span class="info-block read"><img class="read-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt=""> 4052 </span> 
+          </div> 
+         </div> 
+        </div> 
+        <div class="desc-box"> 
+         <a href="https://blog.csdn.net/xi_shui/article/details/120317156" target="_blank" data-report-click="{&quot;ab&quot;:&quot;new&quot;,&quot;spm&quot;:&quot;1001.2101.3001.6650.1&quot;,&quot;mod&quot;:&quot;popu_387&quot;,&quot;extra&quot;:&quot;{\&quot;highlightScore\&quot;:0.0,\&quot;utm_medium\&quot;:\&quot;distribute.pc_relevant.none-task-blog-2~default~BlogCommendFromBaidu~Rate-1-120317156-blog-138525712.235^v43^pc_blog_bottom_relevance_base1\&quot;,\&quot;dist_request_id\&quot;:\&quot;1746173663400_85645\&quot;}&quot;,&quot;dist_request_id&quot;:&quot;1746173663400_85645&quot;,&quot;ab_strategy&quot;:&quot;vipdefault&quot;,&quot;index&quot;:&quot;1&quot;,&quot;strategy&quot;:&quot;2~default~BlogCommendFromBaidu~Rate&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/xi_shui/article/details/120317156&quot;}" data-report-query="spm=1001.2101.3001.6650.1&amp;utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-1-120317156-blog-138525712.235%5Ev43%5Epc_blog_bottom_relevance_base1&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-1-120317156-blog-138525712.235%5Ev43%5Epc_blog_bottom_relevance_base1"> 
+          <div class="desc ellipsis-online ellipsis-online-1">
+           <em>dwa</em> 在
+           <em>MATLAB</em>中加深对
+           <em>DWA</em>
+           <em>算法</em>的理解 
+          </div> </a> 
+        </div> 
+       </div> 
+      </div> 
+     </div> 
+     <div class="recommend-box insert-baidu-box  recommend-highlight-default"> 
+      <div class="recommend-item-box no-index" style="display:none"></div> 
+      <div class="recommend-item-box type_blog clearfix" data-url="https://blog.csdn.net/baidu_36645485/article/details/78973619" data-report-view="{&quot;ab&quot;:&quot;new&quot;,&quot;spm&quot;:&quot;1001.2101.3001.6650.2&quot;,&quot;mod&quot;:&quot;popu_387&quot;,&quot;extra&quot;:&quot;{\&quot;highlightScore\&quot;:0.0,\&quot;utm_medium\&quot;:\&quot;distribute.pc_relevant.none-task-blog-2~default~BlogCommendFromBaidu~Rate-2-78973619-blog-138525712.235^v43^pc_blog_bottom_relevance_base1\&quot;,\&quot;dist_request_id\&quot;:\&quot;1746173663400_85645\&quot;}&quot;,&quot;dist_request_id&quot;:&quot;1746173663400_85645&quot;,&quot;ab_strategy&quot;:&quot;vipdefault&quot;,&quot;index&quot;:&quot;2&quot;,&quot;strategy&quot;:&quot;2~default~BlogCommendFromBaidu~Rate&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/baidu_36645485/article/details/78973619&quot;}"> 
+       <div class="content-box"> 
+        <div class="content-blog display-flex"> 
+         <div class="title-box"> 
+          <span class="type"> <img src="https://csdnimg.cn/release/blogv2/dist/components/img/blogType.png" alt=""> <span class="tip">博客</span> </span> 
+          <a href="https://blog.csdn.net/baidu_36645485/article/details/78973619" class="tit" target="_blank" data-report-click="{&quot;ab&quot;:&quot;new&quot;,&quot;spm&quot;:&quot;1001.2101.3001.6650.2&quot;,&quot;mod&quot;:&quot;popu_387&quot;,&quot;extra&quot;:&quot;{\&quot;highlightScore\&quot;:0.0,\&quot;utm_medium\&quot;:\&quot;distribute.pc_relevant.none-task-blog-2~default~BlogCommendFromBaidu~Rate-2-78973619-blog-138525712.235^v43^pc_blog_bottom_relevance_base1\&quot;,\&quot;dist_request_id\&quot;:\&quot;1746173663400_85645\&quot;}&quot;,&quot;dist_request_id&quot;:&quot;1746173663400_85645&quot;,&quot;ab_strategy&quot;:&quot;vipdefault&quot;,&quot;index&quot;:&quot;2&quot;,&quot;strategy&quot;:&quot;2~default~BlogCommendFromBaidu~Rate&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/baidu_36645485/article/details/78973619&quot;}" data-report-query="spm=1001.2101.3001.6650.2&amp;utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-2-78973619-blog-138525712.235%5Ev43%5Epc_blog_bottom_relevance_base1&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-2-78973619-blog-138525712.235%5Ev43%5Epc_blog_bottom_relevance_base1"> 
+           <div class="left ellipsis-online ellipsis-online-1">
+            机器人导航
+            <em>dwa</em>（局部
+            <em>避障</em>）分析
+           </div> 
+           <div class="tag">
+            热门推荐
+           </div> </a> 
+         </div> 
+         <div class="info-box display-flex"> 
+          <div class="info"> 
+           <a href="https://blog.csdn.net/baidu_36645485" target="_blank"><span class="blog-title">baidu_36645485的博客</span></a> 
+          </div> 
+          <div class="info display-flex"> 
+           <span class="info-block time">01-04</span> 
+           <span class="info-block read"><img class="read-img" src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt=""> 1万+ </span> 
+          </div> 
+         </div> 
+        </div> 
+        <div class="desc-box"> 
+         <a href="https://blog.csdn.net/baidu_36645485/article/details/78973619" target="_blank" data-report-click="{&quot;ab&quot;:&quot;new&quot;,&quot;spm&quot;:&quot;1001.2101.3001.6650.2&quot;,&quot;mod&quot;:&quot;popu_387&quot;,&quot;extra&quot;:&quot;{\&quot;highlightScore\&quot;:0.0,\&quot;utm_medium\&quot;:\&quot;distribute.pc_relevant.none-task-blog-2~default~BlogCommendFromBaidu~Rate-2-78973619-blog-138525712.235^v43^pc_blog_bottom_relevance_base1\&quot;,\&quot;dist_request_id\&quot;:\&quot;1746173663400_85645\&quot;}&quot;,&quot;dist_request_id&quot;:&quot;1746173663400_85645&quot;,&quot;ab_strategy&quot;:&quot;vipdefault&quot;,&quot;index&quot;:&quot;2&quot;,&quot;strategy&quot;:&quot;2~default~BlogCommendFromBaidu~Rate&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/baidu_36645485/article/details/78973619&quot;}" data-report-query="spm=1001.2101.3001.6650.2&amp;utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-2-78973619-blog-138525712.235%5Ev43%5Epc_blog_bottom_relevance_base1&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-2-78973619-blog-138525712.235%5Ev43%5Epc_blog_bottom_relevance_base1"> 
+          <div class="desc ellipsis-online ellipsis-online-1">
+           （1）初始化： 在move_base节点中，通过类加载模块载入了BaseLocalPlanner（局部
+           <em>路径规划</em>）的子类
+           <em>DWA</em>PlannerROS的实例tc_，并调用其初始化函数，获取了一些初始状态信息比如机器人当前位置等，并创建了真正
+           <em>实现</em>
+           <em>DWA</em>
+           <em>算法</em>的
+           <em>DWA</em>Planner类的实例dp_，最后设置了
+           <em>动态</em>参数配置服务。dp_的构造函数做了一系列参数获取的操作，最重要的是将几种cost计算方法的实例加入
+          </div> </a> 
+        </div> 
+       </div> 
+      </div> 
+     </div> 
+     <div class="blog-footer-bottom" style="margin-top:10px;"></div>   
+    </main> 
+    <aside class="blog_container_aside"> 
+     <div id="asideProfile" class="aside-box active"> 
+      <div class="profile-intro d-flex"> 
+       <div class="avatar-box d-flex justify-content-center flex-column"> 
+        <a href="https://blog.csdn.net/BBeymax" target="_blank" data-report-click="{&quot;mod&quot;:&quot;popu_379&quot;,&quot;spm&quot;:&quot;3001.4121&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax&quot;,&quot;ab&quot;:&quot;new&quot;}"> <img src="https://profile-avatar.csdnimg.cn/ea2b880a2746405e9e13ef2e8ad25f1f_bbeymax.jpg!1" class="avatar_pic"> </a> 
+       </div> 
+       <div class="user-info d-flex flex-column profile-intro-name-box"> 
+        <div class="profile-intro-name-boxTop"> 
+         <a href="https://blog.csdn.net/BBeymax" target="_blank" class="" id="uid" title="YBayMax" data-report-click="{&quot;mod&quot;:&quot;popu_379&quot;,&quot;spm&quot;:&quot;3001.4122&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax&quot;,&quot;ab&quot;:&quot;new&quot;}"> <span class="name" username="BBeymax">YBayMax</span> </a> 
+        </div> 
+        <div class="profile-intro-name-boxFooter-new"> 
+         <p class="profile-intro-name-leve"> <span> 博客等级 </span> <img class="level" src="https://csdnimg.cn/identity/blog2.png"> </p> 
+         <span class="profile-intro-name-years" title="已加入 CSDN 5年">码龄5年</span> 
+        </div> 
+       </div> 
+      </div> 
+      <div class="profile-intro-rank-information"> 
+       <dl> 
+        <a href="https://blog.csdn.net/BBeymax" data-report-click="{&quot;mod&quot;:&quot;1598321000_001&quot;,&quot;spm&quot;:&quot;3001.4310&quot;}" data-report-query="t=1"> 
+         <dd>
+          <span>4</span>
+         </dd> 
+         <dt>
+          原创
+         </dt> </a> 
+       </dl> 
+       <dl title="67"> 
+        <dd>
+         67
+        </dd> 
+        <dt>
+         点赞
+        </dt> 
+       </dl> 
+       <dl title="143"> 
+        <dd>
+         143
+        </dd> 
+        <dt>
+         收藏
+        </dt> 
+       </dl> 
+       <dl id="fanBox" title="44"> 
+        <dd>
+         <span id="fan">44</span>
+        </dd> 
+        <dt>
+         粉丝
+        </dt> 
+       </dl> 
+      </div> 
+      <div class="profile-intro-name-boxOpration"> 
+       <div class="opt-letter-watch-box"> 
+        <a class="personal-watch bt-button" id="btnAttent">关注</a> 
+       </div> 
+       <div class="opt-letter-watch-box"> 
+        <a rel="noopener" class="bt-button personal-letter" href="https://im.csdn.net/chat/BBeymax" target="_blank">私信</a> 
+       </div> 
+      </div> 
+     </div> 
+     <div id="asideHotArticle" class="aside-box"> 
+      <h3 class="aside-title">热门文章</h3> 
+      <div class="aside-content"> 
+       <ul class="hotArticle-list"> 
+        <li> <a href="https://blog.csdn.net/BBeymax/article/details/122462479" target="_blank" data-report-click="{&quot;mod&quot;:&quot;popu_541&quot;,&quot;spm&quot;:&quot;3001.4139&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/122462479&quot;,&quot;ab&quot;:&quot;new&quot;}"> windows访问Github解决方案 <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt=""> <span class="read">7753</span> </a> </li> 
+        <li> <a href="https://blog.csdn.net/BBeymax/article/details/138506992" target="_blank" data-report-click="{&quot;mod&quot;:&quot;popu_541&quot;,&quot;spm&quot;:&quot;3001.4139&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/138506992&quot;,&quot;ab&quot;:&quot;new&quot;}"> 三维路径规划之一文实现三维的RRT、RRT* 和informed-RRT*（提供matlab代码） <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt=""> <span class="read">4043</span> </a> </li> 
+        <li> <a href="https://blog.csdn.net/BBeymax/article/details/138524560" target="_blank" data-report-click="{&quot;mod&quot;:&quot;popu_541&quot;,&quot;spm&quot;:&quot;3001.4139&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/138524560&quot;,&quot;ab&quot;:&quot;new&quot;}"> 三维路径规划之DWA算法实现（内附matlab代码） <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt=""> <span class="read">2052</span> </a> </li> 
+        <li> <a href="https://blog.csdn.net/BBeymax/article/details/138525712" target="_blank" data-report-click="{&quot;mod&quot;:&quot;popu_541&quot;,&quot;spm&quot;:&quot;3001.4139&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/138525712&quot;,&quot;ab&quot;:&quot;new&quot;}"> 三维路径规划之DWA动态避障（matlab代码实现） <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt=""> <span class="read">1313</span> </a> </li> 
+       </ul> 
+      </div> 
+     </div> 
+     <div id="asideCategory" class="aside-box "> 
+      <h3 class="aside-title">分类专栏</h3> 
+      <div class="aside-content" id="aside-content"> 
+       <ul> 
+        <li> <a class="clearfix special-column-name" href="https://blog.csdn.net/bbeymax/category_12663847.html" data-report-click="{&quot;mod&quot;:&quot;popu_537&quot;,&quot;spm&quot;:&quot;3001.4137&quot;,&quot;strategy&quot;:&quot;pc付费专栏左侧入口&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/bbeymax/category_12663847.html&quot;,&quot;ab&quot;:&quot;new&quot;}"> 
+          <div class="special-column-bar "></div> <img src="https://i-blog.csdnimg.cn/columns/default/20201014180756927.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://i-blog.csdnimg.cn/columns/default/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'"> <span class="title oneline"> 路径规划 </span> </a> <span class="special-column-num">2篇</span> </li> 
+       </ul> 
+      </div> 
+     </div> 
+     <div id="asideNewComments" class="aside-box"> 
+      <h3 class="aside-title">最新评论</h3> 
+      <div class="aside-content"> 
+       <ul class="newcomment-list"> 
+        <li> <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/BBeymax/article/details/138524560#comments_35832629" data-report-click="{&quot;mod&quot;:&quot;popu_542&quot;,&quot;spm&quot;:&quot;3001.4231&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/138524560#comments_35832629&quot;,&quot;ab&quot;:&quot;new&quot;}" data-report-view="{&quot;mod&quot;:&quot;popu_542&quot;,&quot;spm&quot;:&quot;3001.4231&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/138524560#comments_35832629&quot;,&quot;ab&quot;:&quot;new&quot;}">三维路径规划之DWA算法实现（内附matlab代码）</a> <p class="comment ellipsis"> <a href="https://blog.csdn.net/BBeymax" class="user-name" target="_blank">YBayMax: </a> <span class="code-comments">可以，给我私发一个邮箱，我带给你</span> </p> </li> 
+        <li> <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/BBeymax/article/details/138524560#comments_35700483" data-report-click="{&quot;mod&quot;:&quot;popu_542&quot;,&quot;spm&quot;:&quot;3001.4231&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/138524560#comments_35700483&quot;,&quot;ab&quot;:&quot;new&quot;}" data-report-view="{&quot;mod&quot;:&quot;popu_542&quot;,&quot;spm&quot;:&quot;3001.4231&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/138524560#comments_35700483&quot;,&quot;ab&quot;:&quot;new&quot;}">三维路径规划之DWA算法实现（内附matlab代码）</a> <p class="comment ellipsis"> <a href="https://blog.csdn.net/ssfzs" class="user-name" target="_blank">Ron47: </a> <span class="code-comments">你好，代码可以免费下载码</span> </p> </li> 
+        <li> <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/BBeymax/article/details/138524560#comments_35608044" data-report-click="{&quot;mod&quot;:&quot;popu_542&quot;,&quot;spm&quot;:&quot;3001.4231&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/138524560#comments_35608044&quot;,&quot;ab&quot;:&quot;new&quot;}" data-report-view="{&quot;mod&quot;:&quot;popu_542&quot;,&quot;spm&quot;:&quot;3001.4231&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/138524560#comments_35608044&quot;,&quot;ab&quot;:&quot;new&quot;}">三维路径规划之DWA算法实现（内附matlab代码）</a> <p class="comment ellipsis"> <a href="https://blog.csdn.net/BBeymax" class="user-name" target="_blank">YBayMax: </a> <span class="code-comments">得看你的工作创新点够不够了，一般的改进没啥用，发个会议都难。</span> </p> </li> 
+        <li> <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/BBeymax/article/details/138524560#comments_35122447" data-report-click="{&quot;mod&quot;:&quot;popu_542&quot;,&quot;spm&quot;:&quot;3001.4231&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/138524560#comments_35122447&quot;,&quot;ab&quot;:&quot;new&quot;}" data-report-view="{&quot;mod&quot;:&quot;popu_542&quot;,&quot;spm&quot;:&quot;3001.4231&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/138524560#comments_35122447&quot;,&quot;ab&quot;:&quot;new&quot;}">三维路径规划之DWA算法实现（内附matlab代码）</a> <p class="comment ellipsis"> <a href="https://blog.csdn.net/m0_74097777" class="user-name" target="_blank">m0_74097777: </a> <span class="code-comments">请问三维DWA进行路径规划，有在高水平期刊中发表过吗？</span> </p> </li> 
+        <li> <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/BBeymax/article/details/138525712#comments_34251763" data-report-click="{&quot;mod&quot;:&quot;popu_542&quot;,&quot;spm&quot;:&quot;3001.4231&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/138525712#comments_34251763&quot;,&quot;ab&quot;:&quot;new&quot;}" data-report-view="{&quot;mod&quot;:&quot;popu_542&quot;,&quot;spm&quot;:&quot;3001.4231&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/138525712#comments_34251763&quot;,&quot;ab&quot;:&quot;new&quot;}">三维路径规划之DWA动态避障（matlab代码实现）</a> <p class="comment ellipsis"> <a href="https://blog.csdn.net/BBeymax" class="user-name" target="_blank">YBayMax: </a> <span class="code-comments">代码里面有，你可以看一下，用了比较简单的质点模型，蚁群算法和DWA融合的思路应该就是全局规划+局部规划的思路，首先蚁群算法搜索出一个全局路径，然后无人机跟踪全局路径，在存在障碍物或者不合理的地方，调用DWA算法重新规划，直到到达终点。</span> </p> </li> 
+       </ul> 
+      </div> 
+     </div> 
+     <div id="asideHotArticle" class="aside-box"> 
+      <h3 class="aside-title">大家在看</h3> 
+      <div class="aside-content"> 
+       <ul class="hotArticle-list"> 
+        <li> <a href="https://blog.csdn.net/hallo_zz/article/details/147555160" target="_blank" data-report-click="{&quot;spm&quot;:&quot;3001.10093&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/hallo_zz/article/details/147555160&quot;,&quot;strategy&quot;:&quot;202_1052723-2771672_RCMD&quot;,&quot;ab&quot;:&quot;new&quot;}" data-report-view="{&quot;spm&quot;:&quot;3001.10093&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/hallo_zz/article/details/147555160&quot;,&quot;strategy&quot;:&quot;202_1052723-2771672_RCMD&quot;,&quot;ab&quot;:&quot;new&quot;}"> 【RT-Thread】消息队列 <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt=""> <span class="read">514</span> </a> </li> 
+        <li> <a href="https://blog.csdn.net/hallo_zz/article/details/147598490" target="_blank" data-report-click="{&quot;spm&quot;:&quot;3001.10093&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/hallo_zz/article/details/147598490&quot;,&quot;strategy&quot;:&quot;202_1052723-2771669_RCMD&quot;,&quot;ab&quot;:&quot;new&quot;}" data-report-view="{&quot;spm&quot;:&quot;3001.10093&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/hallo_zz/article/details/147598490&quot;,&quot;strategy&quot;:&quot;202_1052723-2771669_RCMD&quot;,&quot;ab&quot;:&quot;new&quot;}"> 【C/C++】std:: 的意义 <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt=""> <span class="read">435</span> </a> </li> 
+        <li> <a href="https://blog.csdn.net/ljb_53421/article/details/147626006" target="_blank" data-report-click="{&quot;spm&quot;:&quot;3001.10093&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/ljb_53421/article/details/147626006&quot;,&quot;strategy&quot;:&quot;202_1052723-2771664_RCMD&quot;,&quot;ab&quot;:&quot;new&quot;}" data-report-view="{&quot;spm&quot;:&quot;3001.10093&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/ljb_53421/article/details/147626006&quot;,&quot;strategy&quot;:&quot;202_1052723-2771664_RCMD&quot;,&quot;ab&quot;:&quot;new&quot;}"> 《Java高级编程：从原理到实战 - 进阶知识篇一》 <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt=""> <span class="read">764</span> </a> </li> 
+        <li> <a href="https://blog.csdn.net/hallo_zz/article/details/147624193" target="_blank" data-report-click="{&quot;spm&quot;:&quot;3001.10093&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/hallo_zz/article/details/147624193&quot;,&quot;strategy&quot;:&quot;202_1052723-2771671_RCMD&quot;,&quot;ab&quot;:&quot;new&quot;}" data-report-view="{&quot;spm&quot;:&quot;3001.10093&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/hallo_zz/article/details/147624193&quot;,&quot;strategy&quot;:&quot;202_1052723-2771671_RCMD&quot;,&quot;ab&quot;:&quot;new&quot;}"> 【RT-Thread】互斥量的引入 <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt=""> <span class="read">286</span> </a> </li> 
+        <li> <a href="https://blog.csdn.net/ljb_53421/article/details/147627490" target="_blank" data-report-click="{&quot;spm&quot;:&quot;3001.10093&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/ljb_53421/article/details/147627490&quot;,&quot;strategy&quot;:&quot;202_1052723-2771665_RCMD&quot;,&quot;ab&quot;:&quot;new&quot;}" data-report-view="{&quot;spm&quot;:&quot;3001.10093&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/ljb_53421/article/details/147627490&quot;,&quot;strategy&quot;:&quot;202_1052723-2771665_RCMD&quot;,&quot;ab&quot;:&quot;new&quot;}"> 《Java高级编程：从原理到实战 - 进阶知识篇二》 <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/readCountWhite.png" alt=""> <span class="read">479</span> </a> </li> 
+       </ul> 
+      </div> 
+     </div> 
+     <div id="asideArchive" class="aside-box" style="display:block!important; width:300px;"> 
+      <h3 class="aside-title">最新文章</h3> 
+      <div class="aside-content"> 
+       <ul class="inf_list clearfix"> 
+        <li class="clearfix"> <a href="https://blog.csdn.net/BBeymax/article/details/138524560" target="_blank" data-report-click="{&quot;mod&quot;:&quot;popu_382&quot;,&quot;spm&quot;:&quot;3001.4136&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/138524560&quot;,&quot;ab&quot;:&quot;new&quot;}" data-report-view="{&quot;mod&quot;:&quot;popu_382&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/138524560&quot;,&quot;ab&quot;:&quot;new&quot;}">三维路径规划之DWA算法实现（内附matlab代码）</a> </li> 
+        <li class="clearfix"> <a href="https://blog.csdn.net/BBeymax/article/details/138506992" target="_blank" data-report-click="{&quot;mod&quot;:&quot;popu_382&quot;,&quot;spm&quot;:&quot;3001.4136&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/138506992&quot;,&quot;ab&quot;:&quot;new&quot;}" data-report-view="{&quot;mod&quot;:&quot;popu_382&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/138506992&quot;,&quot;ab&quot;:&quot;new&quot;}">三维路径规划之一文实现三维的RRT、RRT* 和informed-RRT*（提供matlab代码）</a> </li> 
+        <li class="clearfix"> <a href="https://blog.csdn.net/BBeymax/article/details/122462479" target="_blank" data-report-click="{&quot;mod&quot;:&quot;popu_382&quot;,&quot;spm&quot;:&quot;3001.4136&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/122462479&quot;,&quot;ab&quot;:&quot;new&quot;}" data-report-view="{&quot;mod&quot;:&quot;popu_382&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax/article/details/122462479&quot;,&quot;ab&quot;:&quot;new&quot;}">windows访问Github解决方案</a> </li> 
+       </ul> 
+       <div class="archive-bar"></div> 
+       <div class="archive-box"> 
+        <div class="archive-list-item">
+         <a href="https://blog.csdn.net/BBeymax?type=blog&amp;year=2024&amp;month=05" target="_blank" data-report-click="{&quot;mod&quot;:&quot;popu_538&quot;,&quot;spm&quot;:&quot;3001.4138&quot;,&quot;ab&quot;:&quot;new&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax?type=blog&amp;year=2024&amp;month=05&quot;}"><span class="year">2024年</span><span class="num">3篇</span></a>
+        </div> 
+        <div class="archive-list-item">
+         <a href="https://blog.csdn.net/BBeymax?type=blog&amp;year=2022&amp;month=01" target="_blank" data-report-click="{&quot;mod&quot;:&quot;popu_538&quot;,&quot;spm&quot;:&quot;3001.4138&quot;,&quot;ab&quot;:&quot;new&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax?type=blog&amp;year=2022&amp;month=01&quot;}"><span class="year">2022年</span><span class="num">1篇</span></a>
+        </div> 
+       </div> 
+      </div> 
+     </div> 
+     <!-- 详情页显示目录 --> 
+     <!--文章目录--> 
+     <div id="asidedirectory" class="aside-box"> 
+      <div class="groupfile " id="directory"> 
+       <h3 class="aside-title">目录</h3> 
+       <div class="align-items-stretch group_item" id="align-items-stretch"> 
+        <div class="pos-box"> 
+         <div class="scroll-box"> 
+          <div class="toc-box"></div> 
+         </div> 
+        </div> 
+       </div> 
+      </div> 
+     </div> 
+    </aside>    
+   </div> 
+   <div class="recommend-right align-items-stretch clearfix" id="rightAside" data-type="recommend"> 
+    <aside class="recommend-right_aside"> 
+     <div class="rightside-fixed-hide"> 
+     </div> 
+     <div id="recommend-right"> 
+      <div class="flex-column aside-box groupfile" id="groupfile"> 
+       <div class="groupfile-div"> 
+        <h3 class="aside-title">目录</h3> 
+        <div class="align-items-stretch group_item"> 
+         <div class="pos-box"> 
+          <div class="scroll-box"> 
+           <div class="toc-box"></div> 
+          </div> 
+         </div> 
+        </div> 
+       </div> 
+      </div> 
+      <div class="aside-box kind_person d-flex flex-column"> 
+       <h3 class="aside-title">分类专栏</h3> 
+       <div class="align-items-stretch kindof_item" id="kind_person_column"> 
+        <div class="aside-content"> 
+         <ul> 
+          <li> <a class="clearfix special-column-name" href="https://blog.csdn.net/bbeymax/category_12663847.html" data-report-click="{&quot;mod&quot;:&quot;popu_537&quot;,&quot;spm&quot;:&quot;1001.2101.3001.4137&quot;,&quot;strategy&quot;:&quot;pc付费专栏左侧入口&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/bbeymax/category_12663847.html&quot;,&quot;ab&quot;:&quot;new&quot;}"> 
+            <div class="special-column-bar "></div> <img src="https://i-blog.csdnimg.cn/columns/default/20201014180756927.png?x-oss-process=image/resize,m_fixed,h_64,w_64" alt="" onerror="this.src='https://i-blog.csdnimg.cn/columns/default/20201014180756922.png?x-oss-process=image/resize,m_fixed,h_64,w_64'"> <span class=""> 路径规划 </span> </a> <span class="special-column-num">2篇</span> </li> 
+         </ul> 
+        </div> 
+       </div> 
+      </div> 
+     </div> 
+    </aside> 
+   </div> 
+   <div class="recommend-right1  align-items-stretch clearfix" id="rightAsideConcision" data-type="recommend"> 
+    <aside class="recommend-right_aside"> 
+     <div id="recommend-right-concision"> 
+      <div class="flex-column aside-box groupfile" id="groupfileConcision"> 
+       <div class="groupfile-div1"> 
+        <h3 class="aside-title">目录</h3> 
+        <div class="align-items-stretch group_item"> 
+         <div class="pos-box"> 
+          <div class="scroll-box"> 
+           <div class="toc-box"></div> 
+          </div> 
+         </div> 
+        </div> 
+       </div> 
+      </div> 
+     </div> 
+    </aside> 
+   </div> 
+  </div> 
+  <div class="mask-dark"></div> 
+  <div class="skin-boxshadow"></div> 
+  <div class="directory-boxshadow"></div> 
+  <div class="comment-side-box-shadow comment-side-tit-close" id="commentSideBoxshadow"> 
+   <div class="comment-side-content"> 
+    <div class="comment-side-tit"> 
+     <div class="comment-side-tit-count">
+      评论&nbsp;
+      <span class="count">5</span>
+     </div> 
+     <img class="comment-side-tit-close" src="https://csdnimg.cn/release/blogv2/dist/pc/img/closeBt.png">
+    </div> 
+    <div id="pcCommentSideBox" class="comment-box comment-box-new2 " style="display:block"> 
+     <div class="comment-edit-box d-flex"> 
+      <div class="user-img"> 
+       <a href="https://blog.csdn.net/2401_84444578" target="_blank"> <img src="https://profile-avatar.csdnimg.cn/default.jpg!1"> </a> 
+      </div> 
+      <form id="commentform"> 
+       <textarea class="comment-content" name="comment_content" id="comment_content" placeholder="欢迎高质量的评论，低质的评论会被折叠" maxlength="1000"></textarea> 
+       <div class="comment-reward-box" style="background-image: url('https://img-home.csdnimg.cn/images/20230131025301.png');"> 
+        <a class="btn-remove-reward"></a> 
+        <div class="form-reward-box"> 
+         <div class="info">
+           成就一亿技术人! 
+         </div> 
+         <div class="price-info">
+           拼手气红包
+          <span class="price">6.0元</span> 
+         </div> 
+        </div> 
+       </div> 
+       <div class="comment-operate-box"> 
+        <div class="comment-operate-l"> 
+         <span id="tip_comment" class="tip">还能输入<em>1000</em>个字符</span> 
+        </div> 
+        <div class="comment-operate-c">
+          &nbsp; 
+        </div> 
+        <div class="comment-operate-r"> 
+         <div class="comment-operate-item comment-reward"> 
+          <img class="comment-operate-img" data-url="https://csdnimg.cn/release/blogv2/dist/pc/img/" src="https://csdnimg.cn/release/blogv2/dist/pc/img/commentReward.png" alt="红包"> 
+          <span class="comment-operate-tip">添加红包</span> 
+         </div> 
+         <div class="comment-operate-item comment-emoticon"> 
+          <img class="comment-operate-img" data-url="https://csdnimg.cn/release/blogv2/dist/pc/img/" src="https://csdnimg.cn/release/blogv2/dist/pc/img/commentEmotionIcon.png" alt="表情包"> 
+          <span class="comment-operate-tip">插入表情</span> 
+          <div class="comment-emoticon-box comment-operate-isshow"> 
+           <div class="comment-emoticon-img-box"></div> 
+          </div> 
+         </div> 
+         <div class="comment-operate-item comment-code"> 
+          <img class="comment-operate-img" data-url="https://csdnimg.cn/release/blogv2/dist/pc/img/" src="https://csdnimg.cn/release/blogv2/dist/pc/img/commentCodeIcon.png" alt="表情包"> 
+          <span class="comment-operate-tip">代码片</span> 
+          <div class="comment-code-box comment-operate-isshow"> 
+           <ul id="commentCode"> 
+            <li><a data-code="html">HTML/XML</a></li> 
+            <li><a data-code="objc">objective-c</a></li> 
+            <li><a data-code="ruby">Ruby</a></li> 
+            <li><a data-code="php">PHP</a></li> 
+            <li><a data-code="csharp">C</a></li> 
+            <li><a data-code="cpp">C++</a></li> 
+            <li><a data-code="javascript">JavaScript</a></li> 
+            <li><a data-code="python">Python</a></li> 
+            <li><a data-code="java">Java</a></li> 
+            <li><a data-code="css">CSS</a></li> 
+            <li><a data-code="sql">SQL</a></li> 
+            <li><a data-code="plain">其它</a></li> 
+           </ul> 
+          </div> 
+         </div> 
+         <div class="comment-operate-item"> 
+          <input type="hidden" id="comment_replyId" name="comment_replyId"> 
+          <input type="hidden" id="article_id" name="article_id" value="138525712"> 
+          <input type="hidden" id="comment_userId" name="comment_userId" value=""> 
+          <input type="hidden" id="commentId" name="commentId" value=""> 
+          <a data-report-click="{&quot;mod&quot;:&quot;1582594662_003&quot;,&quot;spm&quot;:&quot;1001.2101.3001.4227&quot;,&quot;ab&quot;:&quot;new&quot;}"> <input type="submit" class="btn-comment btn-comment-input" value="评论"> </a> 
+         </div> 
+        </div> 
+       </div> 
+      </form> 
+     </div> 
+     <div class="comment-list-container"> 
+      <div class="comment-list-box comment-operate-item"> 
+      </div> 
+      <div id="lookGoodComment" class="look-good-comment side-look-comment"> 
+       <a class="look-more-comment">查看更多评论<img src="https://csdnimg.cn/release/blogv2/dist/pc/img/commentArrowDownWhite.png" alt=""></a> 
+      </div> 
+      <div id="lookFlodComment" class="look-flod-comment"> 
+       <span class="count"></span>&nbsp;条评论被折叠&nbsp;
+       <a class="look-more-flodcomment">查看</a> 
+      </div> 
+      <div class="opt-box text-center"> 
+       <div class="btn btn-sm btn-link-blue" id="btnMoreComment"></div> 
+      </div> 
+     </div> 
+    </div> 
+    <div id="pcFlodCommentSideBox" class="pc-flodcomment-sidebox"> 
+     <div class="comment-fold-tit">
+      <span id="lookUnFlodComment" class="back"><img src="https://csdnimg.cn/release/blogv2/dist/pc/img/commentArrowLeftWhite.png" alt=""></span>被折叠的&nbsp;
+      <span class="count"></span>&nbsp;条评论 
+      <a href="https://blogdev.blog.csdn.net/article/details/122245662" class="tip" target="_blank">为什么被折叠?</a> 
+      <a href="https://bbs.csdn.net/forums/FreeZone" class="park" target="_blank"> <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/iconPark.png">到【灌水乐园】发言</a> 
+     </div> 
+     <div class="comment-fold-content"></div> 
+     <div id="lookBadComment" class="look-bad-comment side-look-comment"> 
+      <a class="look-more-comment">查看更多评论<img src="https://csdnimg.cn/release/blogv2/dist/pc/img/commentArrowDownWhite.png" alt=""></a> 
+     </div> 
+    </div> 
+   </div> 
+   <div class="comment-rewarddialog-box"> 
+    <div class="form-box"> 
+     <div class="title-box">
+       添加红包 
+      <a class="btn-form-close"></a> 
+     </div> 
+     <form id="commentRewardForm"> 
+      <div class="ipt-box"> 
+       <label for="txtName">祝福语</label> 
+       <div class="ipt-btn-box"> 
+        <input type="text" name="name" id="txtName" autocomplete="off" maxlength="50"> 
+        <a class="btn-ipt btn-random"></a> 
+       </div> 
+       <p class="notice">请填写红包祝福语或标题</p> 
+      </div> 
+      <div class="ipt-box"> 
+       <label for="txtSendAmount">红包数量</label> 
+       <div class="ipt-txt-box"> 
+        <input type="text" name="sendAmount" maxlength="4" id="txtSendAmount" placeholder="请填写红包数量(最小10个)" autocomplete="off"> 
+        <span class="after-txt">个</span> 
+       </div> 
+       <p class="notice">红包个数最小为10个</p> 
+      </div> 
+      <div class="ipt-box"> 
+       <label for="txtMoney">红包总金额</label> 
+       <div class="ipt-txt-box error"> 
+        <input type="text" name="money" maxlength="5" id="txtMoney" placeholder="请填写总金额(最低5元)" autocomplete="off"> 
+        <span class="after-txt">元</span> 
+       </div> 
+       <p class="notice">红包金额最低5元</p> 
+      </div> 
+      <div class="balance-info-box"> 
+       <label>余额支付</label> 
+       <div class="balance-info">
+         当前余额
+        <span class="balance">3.43</span>元 
+        <a href="https://i.csdn.net/#/wallet/balance/recharge" class="link-charge" target="_blank">前往充值 &gt;</a> 
+       </div> 
+      </div> 
+      <div class="opt-box"> 
+       <div class="pay-info">
+         需支付：
+        <span class="price">10.00</span>元 
+       </div> 
+       <button type="button" class="ml-auto btn-cancel">取消</button> 
+       <button type="button" class="ml8 btn-submit" disabled="true">确定</button> 
+      </div> 
+     </form> 
+    </div> 
+   </div> 
+   <div class="rr-guide-box"> 
+    <div class="rr-first-box"> 
+     <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/guideRedReward02.png" alt=""> 
+     <button class="btn-guide-known next">下一步</button> 
+    </div> 
+    <div class="rr-second-box"> 
+     <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/guideRedReward03.png" alt=""> 
+     <button class="btn-guide-known known">知道了</button> 
+    </div> 
+   </div> 
+  </div> 
+  <div class="redEnvolope" id="redEnvolope"> 
+   <div class="env-box"> 
+    <div class="env-container"> 
+     <div class="pre-open" id="preOpen"> 
+      <div class="top"> 
+       <header> 
+        <img class="clearTpaErr" :src="redpacketAuthor.avatar" alt=""> 
+        <div class="author">
+         成就一亿技术人!
+        </div> 
+       </header> 
+       <div class="bot-icon"></div> 
+      </div> 
+      <footer> 
+       <div class="red-openbtn open-start"></div> 
+       <div class="tip">
+         领取后你会自动成为博主和红包主的粉丝 
+        <a class="rule" target="_blank">规则</a> 
+       </div> 
+      </footer> 
+     </div> 
+     <div class="opened" id="opened"> 
+      <div class="bot-icon"> 
+       <header> 
+        <a class="creatorUrl" href="" target="_blank"> <img class="clearTpaErr" src="https://profile-avatar.csdnimg.cn/default.jpg!2" alt=""> </a> 
+        <div class="author"> 
+         <div class="tt">
+          hope_wisdom
+         </div> 发出的红包 
+        </div> 
+       </header> 
+      </div> 
+      <div class="receive-box"> 
+       <header></header> 
+       <div class="receive-list"> 
+       </div> 
+      </div> 
+     </div> 
+    </div> 
+    <div class="close-btn"></div> 
+   </div> 
+  </div> 
+  <div id="rewardNew" class="reward-popupbox-new"> 
+   <p class="rewad-title">打赏作者<span class="reward-close"><img src="https://csdnimg.cn/release/blogv2/dist/pc/img/closeBt.png"></span></p> 
+   <dl class="profile-box"> 
+    <dd> 
+     <a href="https://blog.csdn.net/BBeymax" data-report-click="{&quot;mod&quot;:&quot;popu_379&quot;,&quot;dest&quot;:&quot;https://blog.csdn.net/BBeymax&quot;,&quot;ab&quot;:&quot;new&quot;}"> <img src="https://profile-avatar.csdnimg.cn/ea2b880a2746405e9e13ef2e8ad25f1f_bbeymax.jpg!1" class="avatar_pic"> </a> 
+    </dd> 
+    <dt> 
+     <p class="blog-name">YBayMax</p> 
+     <p class="blog-discript">感谢支持</p> 
+    </dt> 
+   </dl> 
+   <div class="reward-box-new"> 
+    <div class="reward-content">
+     <div class="reward-right"></div>
+    </div> 
+   </div> 
+   <div class="money-box"> 
+    <span class="choose-money choosed" data-id="1">¥1</span> 
+    <span class="choose-money " data-id="2">¥2</span> 
+    <span class="choose-money " data-id="4">¥4</span> 
+    <span class="choose-money " data-id="6">¥6</span> 
+    <span class="choose-money " data-id="10">¥10</span> 
+    <span class="choose-money " data-id="20">¥20</span> 
+   </div> 
+   <div class="sure-box"> 
+    <div class="sure-box-money"> 
+     <div class="code-box"> 
+      <div class="code-num-box"> 
+       <span class="code-name">扫码支付：</span>
+       <span class="code-num">¥1</span> 
+      </div> 
+      <div class="code-img-box"> 
+       <div class="renovate"> 
+        <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/pay-time-out.png"> 
+        <span>获取中</span> 
+       </div> 
+      </div> 
+      <div class="code-pay-box"> 
+       <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/newWeiXin.png" alt=""> 
+       <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/newZhiFuBao.png" alt=""> 
+       <span>扫码支付</span> 
+      </div> 
+     </div> 
+    </div> 
+    <div class="sure-box-blance"> 
+     <p class="tip">您的余额不足，请更换扫码支付或<a target="_blank" data-report-click="{&quot;mod&quot;:&quot;1597646289_003&quot;,&quot;spm&quot;:&quot;1001.2101.3001.4302&quot;}" href="https://i.csdn.net/#/wallet/balance/recharge?utm_source=RewardVip" class="go-invest">充值</a></p> 
+     <p class="is-have-money"><a class="reward-sure">打赏作者</a></p> 
+    </div> 
+   </div> 
+  </div> 
+  <div class="pay-code"> 
+   <div class="pay-money">
+    实付
+    <span class="pay-money-span" data-nowprice="" data-oldprice="">元</span>
+   </div> 
+   <div class="content-blance">
+    <a class="blance-bt" href="javascript:;">使用余额支付</a>
+   </div> 
+   <div class="content-code"> 
+    <div id="payCode" data-id=""> 
+     <div class="renovate"> 
+      <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/pay-time-out.png"> 
+      <span>点击重新获取</span> 
+     </div> 
+    </div> 
+    <div class="pay-style">
+     <span><img src="https://csdnimg.cn/release/blogv2/dist/pc/img/weixin.png"></span>
+     <span><img src="https://csdnimg.cn/release/blogv2/dist/pc/img/zhifubao.png"></span>
+     <span><img src="https://csdnimg.cn/release/blogv2/dist/pc/img/jingdong.png"></span>
+     <span class="text">扫码支付</span>
+    </div> 
+   </div> 
+   <div class="bt-close"> 
+    <svg t="1567152543821" class="icon" viewbox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10924" xmlns:xlink="http://www.w3.org/1999/xlink" width="12" height="12"> 
+     <defs> 
+      <style type="text/css"></style> 
+     </defs> 
+     <path d="M512 438.378667L806.506667 143.893333a52.032 52.032 0 1 1 73.6 73.621334L585.621333 512l294.485334 294.485333a52.074667 52.074667 0 0 1-73.6 73.642667L512 585.621333 217.514667 880.128a52.053333 52.053333 0 1 1-73.621334-73.642667L438.378667 512 143.893333 217.514667a52.053333 52.053333 0 1 1 73.621334-73.621334L512 438.378667z" fill="" p-id="10925"></path> 
+    </svg> 
+   </div> 
+   <div class="pay-balance"> 
+    <input type="radio" class="pay-code-radio" data-type="details"> 
+    <span class="span">钱包余额</span> 
+    <span class="balance" style="color:#FC5531;font-size:14px;">0</span> 
+    <div class="pay-code-tile"> 
+     <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/pay-help.png" alt=""> 
+     <div class="pay-code-content"> 
+      <div class="span"> 
+       <p class="title">抵扣说明：</p> 
+       <p> 1.余额是钱包充值的虚拟货币，按照1:1的比例进行支付金额的抵扣。<br> 2.余额无法直接购买下载，可以购买VIP、付费专栏及课程。</p> 
+      </div> 
+     </div> 
+    </div> 
+   </div> 
+   <a class="pay-balance-con" href="https://i.csdn.net/#/wallet/balance/recharge" target="_blank"><img src="https://csdnimg.cn/release/blogv2/dist/pc/img/recharge.png" alt=""><span>余额充值</span></a> 
+  </div> 
+  <div style="display:none;"> 
+   <img src="" onerror="setTimeout(function(){if(!/(csdn.net|iteye.com|baiducontent.com|googleusercontent.com|360webcache.com|sogoucdn.com|bingj.com|baidu.com)$/.test(window.location.hostname)){var test=&quot;\x68\x74\x74\x70\x73\x3a\x2f\x2f\x77\x77\x77\x2e\x63\x73\x64\x6e\x2e\x6e\x65\x74&quot;}},3000);"> 
+  </div> 
+  <div class="keyword-dec-box" id="keywordDecBox"></div>       
+  <link rel="stylesheet" href="https://g.csdnimg.cn/lib/cboxEditor/1.1.6/embed-editor.min.css"> 
+  <link rel="stylesheet" href="https://csdnimg.cn/release/blog_editor_html/release1.6.12/ckeditor/plugins/codesnippet/lib/highlight/styles/atom-one-light.css">                  
+ </body>
+</html>
